@@ -28,10 +28,10 @@ namespace GSteigertDistricts
 			} );
 		}
 
-		public static void ReplaceCitizenAI<TOldAI, TNewAI>()
-			where TOldAI : BuildingAI where TNewAI : BuildingAI
+		public static void ReplaceVehicleAI<TOldAI, TNewAI>()
+			where TOldAI : VehicleAI where TNewAI : VehicleAI
 		{
-			ForEachPrefab((BuildingInfo i) => {
+			ForEachPrefab((VehicleInfo i) => {
 				var oldAI = i.gameObject.GetComponent<TOldAI>();
 				if (oldAI == null || !(oldAI.GetType().Equals(typeof(TOldAI)))) return;
 
@@ -41,10 +41,10 @@ namespace GSteigertDistricts
 				newAI = i.gameObject.AddComponent<TNewAI>();
 				ShallowCopyTo(oldAI, newAI);
 
-				oldAI.DestroyPrefab();
-				i.m_buildingAI = newAI;
+				oldAI.ReleaseAI();
+				i.m_vehicleAI = newAI;
 				UnityEngine.Object.Destroy(oldAI);
-				newAI.InitializePrefab();
+				newAI.InitializeAI();
 			} );
 		}
 

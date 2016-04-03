@@ -17,11 +17,27 @@ namespace GSteigertDistricts
 
 			ReplaceHelper.ReplaceBuildingAI<MedicalCenterAI, MedicalCenterAIMod>();
 			ReplaceHelper.ReplaceBuildingAI<HospitalAI, HospitalAIMod>();
+			ReplaceHelper.ReplaceVehicleAI<AmbulanceAI, AmbulanceAIMod>();
+
 			ReplaceHelper.ReplaceBuildingAI<CemeteryAI, CemeteryAIMod>();
+			ReplaceHelper.ReplaceVehicleAI<HearseAI, HearseAIMod>();
+
 			ReplaceHelper.ReplaceBuildingAI<PoliceStationAI, PoliceStationAIMod>();
+			ReplaceHelper.ReplaceVehicleAI<PoliceCarAI, PoliceCarAIMod>();
+
 			ReplaceHelper.ReplaceBuildingAI<FireStationAI, FireStationAIMod>();
+			ReplaceHelper.ReplaceVehicleAI<FireTruckAI, FireTruckAIMod>();
+
 			ReplaceHelper.ReplaceBuildingAI<LandfillSiteAI, LandfillSiteAIMod>();
+			ReplaceHelper.ReplaceVehicleAI<GarbageTruckAI, GarbageTruckAIMod>();
+
 			ReplaceHelper.ReplaceBuildingAI<SnowDumpAI, SnowDumpAIMod>();
+			ReplaceHelper.ReplaceVehicleAI<SnowTruckAI, SnowTruckAIMod>();
+
+			ReplaceHelper.ReplaceBuildingAI<MaintenanceDepotAI, MaintenanceDepotAIMod>();
+			ReplaceHelper.ReplaceVehicleAI<MaintenanceTruckAI, MaintenanceTruckAIMod>();
+
+			ReplaceHelper.ReplaceBuildingAI<TaxiStandAI, TaxiStandAIMod>();
 		}
 	}
 }
