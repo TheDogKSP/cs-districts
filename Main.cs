@@ -16,9 +16,7 @@ namespace GSteigertDistricts
         {
             if (mode != LoadMode.NewGame && mode != LoadMode.LoadGame) return;
 
-#if DEBUG
             Utils.Log("[Loading mod]");
-#endif
 
             ReplaceHelper.ReplaceBuildingAI<MedicalCenterAI, MedicalCenterAIMod>();
             ReplaceHelper.ReplaceBuildingAI<HospitalAI, HospitalAIMod>();
@@ -39,9 +37,7 @@ namespace GSteigertDistricts
             ReplaceHelper.ReplaceVehicleAI<AmbulanceAI, AmbulanceAIMod>();
             ReplaceHelper.ReplaceVehicleAI<TaxiAI, TaxiAIMod>();
 
-#if DEBUG
             Utils.Log("[/Loading mod]\n");
-#endif
         }
     }
 }

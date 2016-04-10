@@ -4,6 +4,10 @@ using ColossalFramework;
 
 namespace GSteigertDistricts
 {
+    /**
+     * Ambulances have capacity for one person only, so this AI mod isn't really necessary for now.
+     * The only reason I'm using it is because other mods or custom ambulance vehicles may change this capacity setting.
+     */
     public class AmbulanceAIMod : AmbulanceAI
     {
         public override void StartTransfer(ushort vehicleID, ref Vehicle data,

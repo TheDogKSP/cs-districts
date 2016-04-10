@@ -42,12 +42,13 @@ namespace GSteigertDistricts
             string dstBuilding = buildingManager.GetBuildingName(offer.Building, InstanceID.Empty);
             string srcDistrict = districtManager.GetDistrictName(districtManager.GetDistrict(data.m_position));
             string dstDistrict = districtManager.GetDistrictName(districtManager.GetDistrict(offer.Position));
+            string dstCitizen = citizenManager.GetCitizenName(offer.Citizen);
 
             Utils.Log("------------------------------------------------------------");
             Utils.Log(String.Format("Building #{0} queried (allowed: {1})", buildingID, allowed));
             Utils.Log(String.Format(" - Offer: {0}", Utils.ToString(offer)));
             Utils.Log(String.Format(" - Origin: '{0}'", srcBuilding));
-            Utils.Log(String.Format(" - Destination: '{0}'", dstBuilding));
+            Utils.Log(String.Format(" - Destination: building='{0}', citizen='{1}'", dstBuilding, dstCitizen));
             Utils.Log(String.Format(" - District: '{0}' -> '{1}'", srcDistrict, dstDistrict));
 #endif
 
