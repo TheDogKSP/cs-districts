@@ -24,7 +24,6 @@ namespace GSteigertDistricts
                     return true;
                 case TransferManager.TransferReason.DeadMove:
                 case TransferManager.TransferReason.GarbageMove:
-                case TransferManager.TransferReason.CriminalMove:
                 case TransferManager.TransferReason.SnowMove:
                     return (dstDistrictIdx == 0 || srcDistrictIdx == dstDistrictIdx);
                 default:
