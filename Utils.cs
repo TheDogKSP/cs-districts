@@ -6,45 +6,50 @@ using ColossalFramework.IO;
 
 namespace GSteigertDistricts
 {
-	public static class Utils
-	{		
+    public static class Utils
+    {
 #if DEBUG
-		private static object logLock = new object();
+        private static object logLock = new object();
 #endif
 
-		static Utils()
-		{
-			File.Delete(GetLogFilePath());
-		}
+        static Utils()
+        {
+            File.Delete(GetLogFilePath());
+        }
 
-		public static String ToString(object obj)
-		{
-			string result = "";
-			foreach (PropertyDescriptor descriptor in TypeDescriptor.GetProperties(obj))
-			{
-				string name = descriptor.Name;
-				object value = descriptor.GetValue(obj);
-				result += name + "[" + value + "] ";
-			}
-			return result;
-		}
+        public static String ToString(object obj)
+        {
+            string result = "";
+            foreach (PropertyDescriptor descriptor in TypeDescriptor.GetProperties(obj))
+            {
+                string name = descriptor.Name;
+                object value = descriptor.GetValue(obj);
+                result += name + "[" + value + "] ";
+            }
+            return result;
+        }
 
-		private static string GetLogFilePath()
-		{
-			return Path.Combine(DataLocation.localApplicationData, "gsteigert-districts.log");
-		}
+        private static string GetLogFilePath()
+        {
+            return Path.Combine(DataLocation.localApplicationData, "gsteigert-districts.log");
+        }
 
-		public static void Log(String message) {
+        public static void Log(String message)
+        {
 #if DEBUG
-			try	{
-				Monitor.Enter(logLock);
-				using (StreamWriter w = File.AppendText(GetLogFilePath())) {
-					w.WriteLine(message);
-				}
-			} finally {
-				Monitor.Exit(logLock);
-			}
+            try
+            {
+                Monitor.Enter(logLock);
+                using (StreamWriter w = File.AppendText(GetLogFilePath()))
+                {
+                    w.WriteLine(message);
+                }
+            }
+            finally
+            {
+                Monitor.Exit(logLock);
+            }
 #endif
-		}
-	}
+        }
+    }
 }

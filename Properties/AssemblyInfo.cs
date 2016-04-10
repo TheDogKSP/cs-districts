@@ -8,5 +8,4 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyProduct ("Districts")]
 [assembly: AssemblyCopyright ("gsteigert")]
 [assembly: AssemblyTrademark ("Copyleft")]
-[assembly: AssemblyCulture ("None (Uneducated citizen)")]
 [assembly: AssemblyVersion ("1.0.*")]

@@ -6,74 +6,83 @@ using ICities;
 
 namespace GSteigertDistricts
 {
-	public class ReplaceHelper
-	{
-		public static void ReplaceBuildingAI<TOldAI, TNewAI>()
-			where TOldAI : BuildingAI where TNewAI : BuildingAI
-		{
-			ForEachPrefab((BuildingInfo i) => {
-				var oldAI = i.gameObject.GetComponent<TOldAI>();
-				if (oldAI == null || !(oldAI.GetType().Equals(typeof(TOldAI)))) return;
+    public class ReplaceHelper
+    {
+        public static void ReplaceBuildingAI<TOldAI, TNewAI>()
+            where TOldAI : BuildingAI where TNewAI : BuildingAI
+        {
+            Utils.Log(String.Format("Replacing {0} with {1}", typeof(TOldAI), typeof(TNewAI)));
 
-				var newAI = i.gameObject.GetComponent<TNewAI>();
-				if (newAI != null && newAI.GetType().Equals(typeof(TNewAI))) return;
+            ForEachPrefab((BuildingInfo i) =>
+            {
+                var oldAI = i.gameObject.GetComponent<TOldAI>();
+                if (oldAI == null || !(oldAI.GetType().Equals(typeof(TOldAI)))) return;
 
-				newAI = i.gameObject.AddComponent<TNewAI>();
-				ShallowCopyTo(oldAI, newAI);
+                var newAI = i.gameObject.GetComponent<TNewAI>();
+                if (newAI != null && newAI.GetType().Equals(typeof(TNewAI))) return;
 
-				oldAI.DestroyPrefab();
-				i.m_buildingAI = newAI;
-				UnityEngine.Object.Destroy(oldAI);
-				newAI.InitializePrefab();
-			} );
-		}
+                Utils.Log(String.Format(" - Swapping: {0}", i));
+                newAI = i.gameObject.AddComponent<TNewAI>();
+                ShallowCopyTo(oldAI, newAI);
 
-		public static void ReplaceVehicleAI<TOldAI, TNewAI>()
-			where TOldAI : VehicleAI where TNewAI : VehicleAI
-		{
-			ForEachPrefab((VehicleInfo i) => {
-				var oldAI = i.gameObject.GetComponent<TOldAI>();
-				if (oldAI == null || !(oldAI.GetType().Equals(typeof(TOldAI)))) return;
+                oldAI.DestroyPrefab();
+                i.m_buildingAI = newAI;
+                UnityEngine.Object.Destroy(oldAI);
+                newAI.InitializePrefab();
+            });
+        }
 
-				var newAI = i.gameObject.GetComponent<TNewAI>();
-				if (newAI != null && newAI.GetType().Equals(typeof(TNewAI))) return;
+        public static void ReplaceVehicleAI<TOldAI, TNewAI>()
+            where TOldAI : VehicleAI where TNewAI : VehicleAI
+        {
+            Utils.Log(String.Format("Replacing {0} with {1}", typeof(TOldAI), typeof(TNewAI)));
 
-				newAI = i.gameObject.AddComponent<TNewAI>();
-				ShallowCopyTo(oldAI, newAI);
+            ForEachPrefab((VehicleInfo i) =>
+            {
+                var oldAI = i.gameObject.GetComponent<TOldAI>();
+                if (oldAI == null || !(oldAI.GetType().Equals(typeof(TOldAI)))) return;
 
-				oldAI.ReleaseAI();
-				i.m_vehicleAI = newAI;
-				UnityEngine.Object.Destroy(oldAI);
-				newAI.InitializeAI();
-			} );
-		}
+                var newAI = i.gameObject.GetComponent<TNewAI>();
+                if (newAI != null && newAI.GetType().Equals(typeof(TNewAI))) return;
 
-		private static void ShallowCopyTo(object src, object dst)
-		{
-			var srcFields = GetFields(src);
-			var dstFields = GetFields(dst);
-			foreach (var srcField in srcFields)
-			{
-				FieldInfo dstField;
-				if (!dstFields.TryGetValue(srcField.Key, out dstField)) continue;
-				dstField.SetValue(dst, srcField.Value.GetValue(src));
-			}
-		}
+                Utils.Log(String.Format(" - Swapping: {0}", i));
+                newAI = i.gameObject.AddComponent<TNewAI>();
+                ShallowCopyTo(oldAI, newAI);
 
-		private static Dictionary<string, FieldInfo> GetFields(object obj)
-		{
-			return obj.GetType()
-				.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-				.ToDictionary(f => f.Name, f => f);
-		}
+                oldAI.ReleaseAI();
+                i.m_vehicleAI = newAI;
+                UnityEngine.Object.Destroy(oldAI);
+                newAI.InitializeAI();
+            });
+        }
 
-		private static void ForEachPrefab<T>(Action<T> action) where T : PrefabInfo
-		{
-			for (var i = 0u; i < PrefabCollection<T>.LoadedCount(); i++)
-			{
-				var prefab = PrefabCollection<T>.GetLoaded(i);
-				if (prefab != null) action(prefab);
-			}
-		}
-	}
+        private static void ShallowCopyTo(object src, object dst)
+        {
+            var srcFields = GetFields(src);
+            var dstFields = GetFields(dst);
+
+            foreach (var srcField in srcFields)
+            {
+                FieldInfo dstField;
+                if (!dstFields.TryGetValue(srcField.Key, out dstField)) continue;
+                dstField.SetValue(dst, srcField.Value.GetValue(src));
+            }
+        }
+
+        private static Dictionary<string, FieldInfo> GetFields(object obj)
+        {
+            return obj.GetType()
+                .GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+                .ToDictionary(f => f.Name, f => f);
+        }
+
+        private static void ForEachPrefab<T>(Action<T> action) where T : PrefabInfo
+        {
+            for (var i = 0u; i < PrefabCollection<T>.LoadedCount(); i++)
+            {
+                var prefab = PrefabCollection<T>.GetLoaded(i);
+                if (prefab != null) action(prefab);
+            }
+        }
+    }
 }
