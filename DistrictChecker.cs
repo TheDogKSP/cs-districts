@@ -13,42 +13,60 @@ namespace GSteigertDistricts
         private static bool IsTransferAllowed(Vector3 source, Vector3 destination,
             TransferManager.TransferReason material)
         {
-            byte srcDistrictIdx = districtManager.GetDistrict(source);
-            byte dstDistrictIdx = districtManager.GetDistrict(destination);
+            byte srcDistrict = districtManager.GetDistrict(source);
+            byte dstDistrict = districtManager.GetDistrict(destination);
 
             switch (material)
             {
-                case TransferManager.TransferReason.LeaveCity0:
-                case TransferManager.TransferReason.LeaveCity1:
-                case TransferManager.TransferReason.LeaveCity2:
-                    return true;
+                // goal: fetch something
+                case TransferManager.TransferReason.Garbage:
+                case TransferManager.TransferReason.Crime:
+                case TransferManager.TransferReason.Sick:
+                case TransferManager.TransferReason.Dead:
+                case TransferManager.TransferReason.Fire:
+                case TransferManager.TransferReason.Taxi:
+                case TransferManager.TransferReason.CriminalMove:
+                case TransferManager.TransferReason.Snow:
+                case TransferManager.TransferReason.RoadMaintenance:
+                    return (srcDistrict == 0 || srcDistrict == dstDistrict);
+                
+                // goal: free building capacity
                 case TransferManager.TransferReason.DeadMove:
                 case TransferManager.TransferReason.GarbageMove:
                 case TransferManager.TransferReason.SnowMove:
-                    return (dstDistrictIdx == 0 || srcDistrictIdx == dstDistrictIdx);
+                    return (dstDistrict == 0 || srcDistrict == dstDistrict);
+
                 default:
-                    return (srcDistrictIdx == 0 || srcDistrictIdx == dstDistrictIdx);
+                    return true;
             }
         }
 
         public static bool IsBuildingTransferAllowed(ushort buildingID, ref Building data,
-            TransferManager.TransferReason material, TransferManager.TransferOffer offer)
+            TransferManager.TransferReason material, TransferManager.TransferOffer offer,
+            bool customSearch = false)
         {
             bool allowed = DistrictChecker.IsTransferAllowed(data.m_position, offer.Position, material);
 
 #if DEBUG
-            string srcBuilding = buildingManager.GetBuildingName(buildingID, InstanceID.Empty);
-            string dstBuilding = buildingManager.GetBuildingName(offer.Building, InstanceID.Empty);
-            string srcDistrict = districtManager.GetDistrictName(districtManager.GetDistrict(data.m_position));
-            string dstDistrict = districtManager.GetDistrictName(districtManager.GetDistrict(offer.Position));
-            string dstCitizen = citizenManager.GetCitizenName(offer.Citizen);
+            if (customSearch)
+            {
+                Utils.Log(String.Format(" ---> [Custom search] Building #{0} queried (allowed: {1})", buildingID, allowed));
+            }
+            else
+            {
+                string srcBuilding = buildingManager.GetBuildingName(buildingID, InstanceID.Empty);
+                string dstBuilding = buildingManager.GetBuildingName(offer.Building, InstanceID.Empty);
+                string srcDistrict = districtManager.GetDistrictName((int)districtManager.GetDistrict(data.m_position));
+                string dstDistrict = districtManager.GetDistrictName((int)districtManager.GetDistrict(offer.Position));
+                string dstCitizen = citizenManager.GetCitizenName(offer.Citizen);
 
-            Utils.Log("------------------------------------------------------------");
-            Utils.Log(String.Format("Building #{0} queried (allowed: {1})", buildingID, allowed));
-            Utils.Log(String.Format(" - Offer: {0}", Utils.ToString(offer)));
-            Utils.Log(String.Format(" - Origin: '{0}'", srcBuilding));
-            Utils.Log(String.Format(" - Destination: building='{0}', citizen='{1}'", dstBuilding, dstCitizen));
-            Utils.Log(String.Format(" - District: '{0}' -> '{1}'", srcDistrict, dstDistrict));
+                Utils.Log("------------------------------------------------------------");
+                Utils.Log(String.Format("Building #{0} queried (allowed: {1})", buildingID, allowed));
+                Utils.Log(String.Format(" - Offer: {0}", Utils.ToString(offer)));
+                Utils.Log(String.Format(" - Origin: '{0}'", srcBuilding));
+                Utils.Log(String.Format(" - Destination: building='{0}', citizen='{1}'", dstBuilding, dstCitizen));
+                Utils.Log(String.Format(" - District: '{0}' -> '{1}'", srcDistrict, dstDistrict));
+            }
 #endif
 
             return allowed;
@@ -63,8 +81,8 @@ namespace GSteigertDistricts
 #if DEBUG
             string srcBuilding = buildingManager.GetBuildingName(data.m_sourceBuilding, InstanceID.Empty);
             string dstBuilding = buildingManager.GetBuildingName(offer.Building, InstanceID.Empty);
-            string srcDistrict = districtManager.GetDistrictName(districtManager.GetDistrict(building.m_position));
-            string dstDistrict = districtManager.GetDistrictName(districtManager.GetDistrict(offer.Position));
+            string srcDistrict = districtManager.GetDistrictName((int)districtManager.GetDistrict(building.m_position));
+            string dstDistrict = districtManager.GetDistrictName((int)districtManager.GetDistrict(offer.Position));
             string dstCitizen = citizenManager.GetCitizenName(offer.Citizen);
 
             Utils.Log("------------------------------------------------------------");

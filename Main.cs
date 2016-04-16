@@ -26,6 +26,7 @@ namespace GSteigertDistricts
 			ReplaceHelper.ReplaceBuildingAI<LandfillSiteAI, LandfillSiteAIMod>();
 			ReplaceHelper.ReplaceBuildingAI<SnowDumpAI, SnowDumpAIMod>();
 			ReplaceHelper.ReplaceBuildingAI<MaintenanceDepotAI, MaintenanceDepotAIMod>();
+            ReplaceHelper.ReplaceBuildingAI<DepotAI, DepotAIMod>();
             ReplaceHelper.ReplaceBuildingAI<TaxiStandAI, TaxiStandAIMod>();
 
             ReplaceHelper.ReplaceVehicleAI<MaintenanceTruckAI, MaintenanceTruckAIMod>();
