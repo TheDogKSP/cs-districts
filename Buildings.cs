@@ -163,13 +163,19 @@ namespace GSteigertDistricts
 
                 Building otherBuilding = buildingManager.m_buildings.m_buffer[otherBuildingID];
                 if ((otherBuilding.m_flags & Building.Flags.Active) == Building.Flags.None) continue;
-                if (!aiType.IsAssignableFrom(otherBuilding.Info.m_buildingAI.GetType())) continue;
+                if ((otherBuilding.m_problems & Notification.Problem.Emptying) != Notification.Problem.None) continue;
+                if ((otherBuilding.m_problems & Notification.Problem.EmptyingFinished) != Notification.Problem.None) continue;
+
+                BuildingAI otherBuildingAI = (BuildingAI)otherBuilding.Info.m_buildingAI;
+                if (!aiType.IsAssignableFrom(otherBuildingAI.GetType())) continue;
+                if (otherBuildingAI.IsFull(otherBuildingID, ref otherBuilding)) continue;
 
                 if (delegateMode)
                 {
                     if (DistrictChecker.IsBuildingTransferAllowed(otherBuildingID, ref otherBuilding, material, offer, true))
                     {
-                        otherBuilding.Info.m_buildingAI.StartTransfer(otherBuildingID, ref otherBuilding, material, offer);
+                        // let other building handle the offer
+                        otherBuildingAI.StartTransfer(otherBuildingID, ref otherBuilding, material, offer);
                         return;
                     }
                 }
@@ -180,6 +186,7 @@ namespace GSteigertDistricts
 
                     if (DistrictChecker.IsBuildingTransferAllowed(buildingID, ref data, material, offer, true))
                     {
+                        // change the target to other building
                         data.Info.m_buildingAI.StartTransfer(buildingID, ref data, material, offer);
                         return;
                     }
