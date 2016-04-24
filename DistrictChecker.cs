@@ -50,7 +50,7 @@ namespace GSteigertDistricts
 #if DEBUG
             if (customSearch)
             {
-                Utils.Log(String.Format(" ---> [Custom search] Building #{0} queried (allowed: {1})", buildingID, allowed));
+                Utils.Log(String.Format("   - Building #{0} queried (allowed: {1})", buildingID, allowed));
             }
             else
             {

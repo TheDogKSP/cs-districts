@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using ColossalFramework;
 
@@ -150,6 +151,10 @@ namespace GSteigertDistricts
             TransferManager.TransferReason material, TransferManager.TransferOffer offer,
             ItemClass.Service service)
         {
+#if DEBUG
+            Utils.Log(String.Format(" - Searching another building to delegate"));
+#endif
+
             Type aiType = data.Info.m_buildingAI.GetType().BaseType;
             bool delegateMode = (material == TransferManager.TransferReason.Fire);
             BuildingManager buildingManager = Singleton<BuildingManager>.instance;
@@ -169,6 +174,7 @@ namespace GSteigertDistricts
                 BuildingAI otherBuildingAI = (BuildingAI)otherBuilding.Info.m_buildingAI;
                 if (!aiType.IsAssignableFrom(otherBuildingAI.GetType())) continue;
                 if (otherBuildingAI.IsFull(otherBuildingID, ref otherBuilding)) continue;
+                if (!hasSpareVehicles(otherBuildingID, ref otherBuilding, otherBuildingAI)) continue;
 
                 if (delegateMode)
                 {
@@ -191,6 +197,27 @@ namespace GSteigertDistricts
                         return;
                     }
                 }
+            }
+        }
+
+        private static Boolean hasSpareVehicles(ushort buildingID, ref Building data, BuildingAI buildingAI)
+        {
+            string stats = buildingAI.GetLocalizedStats(buildingID, ref data);
+            stats = stats.Substring(stats.LastIndexOf(':') + 2);
+
+            Match match = new Regex(@"(\d+)\D+(\d+)").Match(stats);
+            if (match.Success)
+            {
+                int vehiclesInUse = int.Parse(match.Groups[1].Value);
+                int vehiclesAvailable = int.Parse(match.Groups[2].Value);
+#if DEBUG
+                Utils.Log(String.Format("   - Capacity check: {0}/{1}", vehiclesInUse, vehiclesAvailable));
+#endif
+                return (vehiclesInUse < vehiclesAvailable);
+            }
+            else
+            {
+                return false;
             }
         }
     }
