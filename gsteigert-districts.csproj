@@ -47,6 +47,7 @@
     <Compile Include="ReplaceHelper.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="DistrictChecker.cs" />
+    <Compile Include="People.cs" />
     <Compile Include="Vehicles.cs" />
     <Compile Include="Buildings.cs" />
   </ItemGroup>

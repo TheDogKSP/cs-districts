@@ -5,6 +5,18 @@ using ColossalFramework;
 
 namespace GSteigertDistricts
 {
+    public class HelicopterDepotAIMod : HelicopterDepotAI
+    {
+        public override void StartTransfer(ushort buildingID, ref Building data,
+            TransferManager.TransferReason material, TransferManager.TransferOffer offer)
+        {
+            if (DistrictChecker.IsBuildingTransferAllowed(buildingID, ref data, material, offer))
+            {
+                base.StartTransfer(buildingID, ref data, material, offer);
+            }
+        }
+    }
+
     public class MedicalCenterAIMod : MedicalCenterAI
     {
         public override void StartTransfer(ushort buildingID, ref Building data,
@@ -143,6 +155,8 @@ namespace GSteigertDistricts
 
     public static class BuildingHelper
     {
+        private static BuildingManager buildingManager = Singleton<BuildingManager>.instance;
+
         /**
          * Workaround a scenario where there is another building closer to the offer's position
          * that doesn't belong to the same district, causing the offer never to be handled.
@@ -152,7 +166,7 @@ namespace GSteigertDistricts
             ItemClass.Service service)
         {
 #if DEBUG
-            Utils.Log(String.Format(" - Searching another building to delegate"));
+            Utils.LogVerbose(String.Format(" - Searching another building to delegate"));
 #endif
 
             Type aiType = data.Info.m_buildingAI.GetType().BaseType;
@@ -211,7 +225,8 @@ namespace GSteigertDistricts
                 int vehiclesInUse = int.Parse(match.Groups[1].Value);
                 int vehiclesAvailable = int.Parse(match.Groups[2].Value);
 #if DEBUG
-                Utils.Log(String.Format("   - Capacity check: {0}/{1}", vehiclesInUse, vehiclesAvailable));
+                string buildingName = buildingManager.GetBuildingName(buildingID, InstanceID.Empty);
+                Utils.LogVerbose(String.Format("   - {0} - Capacity check: {1}/{2}", buildingName, vehiclesInUse, vehiclesAvailable));
 #endif
                 return (vehiclesInUse < vehiclesAvailable);
             }

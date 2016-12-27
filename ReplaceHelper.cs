@@ -11,22 +11,28 @@ namespace GSteigertDistricts
         public static void ReplaceBuildingAI<TOldAI, TNewAI>()
             where TOldAI : BuildingAI where TNewAI : BuildingAI
         {
-            Utils.Log(String.Format("Replacing {0} with {1}", typeof(TOldAI), typeof(TNewAI)));
+            Utils.LogVerbose(String.Format(" - Replacing {0} with {1}", typeof(TOldAI), typeof(TNewAI)));
 
-            ForEachPrefab((BuildingInfo i) =>
+            ForEachPrefab((BuildingInfo info) =>
             {
-                var oldAI = i.gameObject.GetComponent<TOldAI>();
+                var oldAI = info.gameObject.GetComponent<TOldAI>();
                 if (oldAI == null || !(oldAI.GetType().Equals(typeof(TOldAI)))) return;
 
-                var newAI = i.gameObject.GetComponent<TNewAI>();
+                var newAI = info.gameObject.GetComponent<TNewAI>();
                 if (newAI != null && newAI.GetType().Equals(typeof(TNewAI))) return;
 
-                Utils.Log(String.Format(" - Swapping: {0}", i));
-                newAI = i.gameObject.AddComponent<TNewAI>();
+                if (info.name == "Bus Depot" || info.name == "Tram Depot")
+                {
+                    Utils.LogVerbose(String.Format(" --> Skipping: {0}", info.name));
+                    return;
+                }
+
+                Utils.LogVerbose(String.Format(" --> Swapping: {0}", info.name));
+                newAI = info.gameObject.AddComponent<TNewAI>();
                 ShallowCopyTo(oldAI, newAI);
 
                 oldAI.DestroyPrefab();
-                i.m_buildingAI = newAI;
+                info.m_buildingAI = newAI;
                 UnityEngine.Object.Destroy(oldAI);
                 newAI.InitializePrefab();
             });
@@ -35,22 +41,46 @@ namespace GSteigertDistricts
         public static void ReplaceVehicleAI<TOldAI, TNewAI>()
             where TOldAI : VehicleAI where TNewAI : VehicleAI
         {
-            Utils.Log(String.Format("Replacing {0} with {1}", typeof(TOldAI), typeof(TNewAI)));
+            Utils.LogVerbose(String.Format("Replacing {0} with {1}", typeof(TOldAI), typeof(TNewAI)));
 
-            ForEachPrefab((VehicleInfo i) =>
+            ForEachPrefab((VehicleInfo info) =>
             {
-                var oldAI = i.gameObject.GetComponent<TOldAI>();
+                var oldAI = info.gameObject.GetComponent<TOldAI>();
                 if (oldAI == null || !(oldAI.GetType().Equals(typeof(TOldAI)))) return;
 
-                var newAI = i.gameObject.GetComponent<TNewAI>();
+                var newAI = info.gameObject.GetComponent<TNewAI>();
                 if (newAI != null && newAI.GetType().Equals(typeof(TNewAI))) return;
 
-                Utils.Log(String.Format(" - Swapping: {0}", i));
-                newAI = i.gameObject.AddComponent<TNewAI>();
+                Utils.LogVerbose(String.Format(" - Swapping: {0}", info.name));
+                newAI = info.gameObject.AddComponent<TNewAI>();
                 ShallowCopyTo(oldAI, newAI);
 
                 oldAI.ReleaseAI();
-                i.m_vehicleAI = newAI;
+                info.m_vehicleAI = newAI;
+                UnityEngine.Object.Destroy(oldAI);
+                newAI.InitializeAI();
+            });
+        }
+
+        public static void ReplacePersonAI<TOldAI, TNewAI>()
+            where TOldAI : CitizenAI where TNewAI : CitizenAI
+        {
+            Utils.LogVerbose(String.Format("Replacing {0} with {1}", typeof(TOldAI), typeof(TNewAI)));
+
+            ForEachPrefab((CitizenInfo info) =>
+            {
+                var oldAI = info.gameObject.GetComponent<TOldAI>();
+                if (oldAI == null || !(oldAI.GetType().Equals(typeof(TOldAI)))) return;
+
+                var newAI = info.gameObject.GetComponent<TNewAI>();
+                if (newAI != null && newAI.GetType().Equals(typeof(TNewAI))) return;
+
+                Utils.LogVerbose(String.Format(" - Swapping: {0}", info.name));
+                newAI = info.gameObject.AddComponent<TNewAI>();
+                ShallowCopyTo(oldAI, newAI);
+
+                oldAI.ReleaseAI();
+                info.m_citizenAI = newAI;
                 UnityEngine.Object.Destroy(oldAI);
                 newAI.InitializeAI();
             });

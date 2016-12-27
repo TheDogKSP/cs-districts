@@ -3,6 +3,7 @@ using System.IO;
 using System.ComponentModel;
 using System.Threading;
 using ColossalFramework.IO;
+using ColossalFramework.Plugins;
 
 namespace GSteigertDistricts
 {
@@ -34,7 +35,7 @@ namespace GSteigertDistricts
             return Path.Combine(DataLocation.localApplicationData, "gsteigert-districts.log");
         }
 
-        public static void Log(String message)
+        public static void LogVerbose(String message)
         {
 #if DEBUG
             try
@@ -50,6 +51,11 @@ namespace GSteigertDistricts
                 Monitor.Exit(logLock);
             }
 #endif
+        }
+
+        public static void LogInfo(string message)
+        {
+            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, message);
         }
     }
 }
