@@ -59,11 +59,6 @@ namespace GSteigertDistricts
             }
             else
             {
-                if (!Settings.RestrictServiceDispatching)
-                {
-                    return true;
-                }
-
                 switch (reason)
                 {
                     // vehicle fetching something
