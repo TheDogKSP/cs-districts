@@ -7,15 +7,27 @@ using ColossalFramework.Plugins;
 
 namespace GSteigertDistricts
 {
-    public static class Utils
+    internal static class Utils
     {
-#if DEBUG
         private static object logLock = new object();
-#endif
+        private static string generalLogPath;
+        private static string buildingLogPath;
+        private static string vehicleLogPath;
+        private static string citizenLogPath;
 
         static Utils()
         {
-            File.Delete(GetLogFilePath());
+            generalLogPath = Path.Combine(DataLocation.localApplicationData, "dsl-general.log");
+            buildingLogPath = Path.Combine(DataLocation.localApplicationData, "dsl-building.log");
+            vehicleLogPath = Path.Combine(DataLocation.localApplicationData, "dsl-vehicle.log");
+            citizenLogPath = Path.Combine(DataLocation.localApplicationData, "dsl-citizen.log");
+
+            File.Delete(generalLogPath);
+            File.Delete(buildingLogPath);
+            File.Delete(vehicleLogPath);
+            File.Delete(citizenLogPath);
+
+            LogInfo("Writing verbose logs in: " + DataLocation.localApplicationData);
         }
 
         public static String ToString(object obj)
@@ -30,18 +42,12 @@ namespace GSteigertDistricts
             return result;
         }
 
-        private static string GetLogFilePath()
+        public static void LogGeneral(String message)
         {
-            return Path.Combine(DataLocation.localApplicationData, "gsteigert-districts.log");
-        }
-
-        public static void LogVerbose(String message)
-        {
-#if DEBUG
             try
             {
                 Monitor.Enter(logLock);
-                using (StreamWriter w = File.AppendText(GetLogFilePath()))
+                using (StreamWriter w = File.AppendText(generalLogPath))
                 {
                     w.WriteLine(message);
                 }
@@ -50,12 +56,60 @@ namespace GSteigertDistricts
             {
                 Monitor.Exit(logLock);
             }
-#endif
+        }
+
+        public static void LogBuilding(String message)
+        {
+            try
+            {
+                Monitor.Enter(logLock);
+                using (StreamWriter w = File.AppendText(buildingLogPath))
+                {
+                    w.WriteLine(message);
+                }
+            }
+            finally
+            {
+                Monitor.Exit(logLock);
+            }
+        }
+
+        public static void LogVehicle(String message)
+        {
+            try
+            {
+                Monitor.Enter(logLock);
+                using (StreamWriter w = File.AppendText(vehicleLogPath))
+                {
+                    w.WriteLine(message);
+                }
+            }
+            finally
+            {
+                Monitor.Exit(logLock);
+            }
+        }
+
+        public static void LogCitizen(String message)
+        {
+            try
+            {
+                Monitor.Enter(logLock);
+                using (StreamWriter w = File.AppendText(citizenLogPath))
+                {
+                    w.WriteLine(message);
+                }
+            }
+            finally
+            {
+                Monitor.Exit(logLock);
+            }
         }
 
         public static void LogInfo(string message)
         {
-            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, message);
+            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message,
+                "[District Service Limit] " + message);
         }
     }
 }

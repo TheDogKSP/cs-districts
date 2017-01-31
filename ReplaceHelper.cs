@@ -11,7 +11,7 @@ namespace GSteigertDistricts
         public static void ReplaceBuildingAI<TOldAI, TNewAI>()
             where TOldAI : BuildingAI where TNewAI : BuildingAI
         {
-            Utils.LogVerbose(String.Format(" - Replacing {0} with {1}", typeof(TOldAI), typeof(TNewAI)));
+            Utils.LogGeneral(String.Format(" - Replacing {0} with {1}", typeof(TOldAI), typeof(TNewAI)));
 
             ForEachPrefab((BuildingInfo info) =>
             {
@@ -23,11 +23,11 @@ namespace GSteigertDistricts
 
                 if (info.name == "Bus Depot" || info.name == "Tram Depot")
                 {
-                    Utils.LogVerbose(String.Format(" --> Skipping: {0}", info.name));
+                    Utils.LogGeneral(String.Format(" --> Skipping: {0}", info.name));
                     return;
                 }
 
-                Utils.LogVerbose(String.Format(" --> Swapping: {0}", info.name));
+                Utils.LogGeneral(String.Format(" --> Swapping: {0}", info.name));
                 newAI = info.gameObject.AddComponent<TNewAI>();
                 ShallowCopyTo(oldAI, newAI);
 
@@ -41,7 +41,7 @@ namespace GSteigertDistricts
         public static void ReplaceVehicleAI<TOldAI, TNewAI>()
             where TOldAI : VehicleAI where TNewAI : VehicleAI
         {
-            Utils.LogVerbose(String.Format("Replacing {0} with {1}", typeof(TOldAI), typeof(TNewAI)));
+            Utils.LogGeneral(String.Format("Replacing {0} with {1}", typeof(TOldAI), typeof(TNewAI)));
 
             ForEachPrefab((VehicleInfo info) =>
             {
@@ -51,7 +51,7 @@ namespace GSteigertDistricts
                 var newAI = info.gameObject.GetComponent<TNewAI>();
                 if (newAI != null && newAI.GetType().Equals(typeof(TNewAI))) return;
 
-                Utils.LogVerbose(String.Format(" - Swapping: {0}", info.name));
+                Utils.LogGeneral(String.Format(" - Swapping: {0}", info.name));
                 newAI = info.gameObject.AddComponent<TNewAI>();
                 ShallowCopyTo(oldAI, newAI);
 
@@ -65,7 +65,7 @@ namespace GSteigertDistricts
         public static void ReplacePersonAI<TOldAI, TNewAI>()
             where TOldAI : CitizenAI where TNewAI : CitizenAI
         {
-            Utils.LogVerbose(String.Format("Replacing {0} with {1}", typeof(TOldAI), typeof(TNewAI)));
+            Utils.LogGeneral(String.Format("Replacing {0} with {1}", typeof(TOldAI), typeof(TNewAI)));
 
             ForEachPrefab((CitizenInfo info) =>
             {
@@ -75,7 +75,7 @@ namespace GSteigertDistricts
                 var newAI = info.gameObject.GetComponent<TNewAI>();
                 if (newAI != null && newAI.GetType().Equals(typeof(TNewAI))) return;
 
-                Utils.LogVerbose(String.Format(" - Swapping: {0}", info.name));
+                Utils.LogGeneral(String.Format(" - Swapping: {0}", info.name));
                 newAI = info.gameObject.AddComponent<TNewAI>();
                 ShallowCopyTo(oldAI, newAI);
 

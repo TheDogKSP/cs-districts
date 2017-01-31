@@ -166,7 +166,7 @@ namespace GSteigertDistricts
             ItemClass.Service service)
         {
 #if DEBUG
-            Utils.LogVerbose(String.Format(" - Searching another building to delegate"));
+            Utils.LogBuilding(String.Format(" - Searching another building to delegate"));
 #endif
 
             Type aiType = data.Info.m_buildingAI.GetType().BaseType;
@@ -226,7 +226,7 @@ namespace GSteigertDistricts
                 int vehiclesAvailable = int.Parse(match.Groups[2].Value);
 #if DEBUG
                 string buildingName = buildingManager.GetBuildingName(buildingID, InstanceID.Empty);
-                Utils.LogVerbose(String.Format("   - {0} - Capacity check: {1}/{2}", buildingName, vehiclesInUse, vehiclesAvailable));
+                Utils.LogBuilding(String.Format("   - {0} - Capacity check: {1}/{2}", buildingName, vehiclesInUse, vehiclesAvailable));
 #endif
                 return (vehiclesInUse < vehiclesAvailable);
             }

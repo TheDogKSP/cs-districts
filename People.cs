@@ -9,7 +9,7 @@ namespace GSteigertDistricts
         public override void StartTransfer(uint citizenID, ref Citizen data,
             TransferManager.TransferReason reason, TransferManager.TransferOffer offer)
         {
-            if (DistrictChecker.IsPersonTransferAllowed(citizenID, ref data, reason, offer))
+            if (DistrictChecker.IsCitizenTransferAllowed(citizenID, ref data, reason, offer))
             {
                 base.StartTransfer(citizenID, ref data, reason, offer);
             }
