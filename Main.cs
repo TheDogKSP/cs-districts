@@ -32,6 +32,8 @@ namespace GSteigertDistricts
                 Settings.RestrictCitizenParkAccess, RestrictCitizenParkAccessClicked);
             group2.AddCheckbox("Citizens will only do shopping in the current district",
                 Settings.RestrictCitizenShoppingAccess, RestrictCitizenShoppingAccessClicked);
+            group2.AddCheckbox("Citizens will only work in the current district",
+                Settings.RestrictCitizenWorkAccess, RestrictCitizenWorkAccessClicked);
             group2.AddSpace(5);
         }
 
@@ -63,6 +65,11 @@ namespace GSteigertDistricts
         private void RestrictCitizenShoppingAccessClicked(bool isChecked)
         {
             Settings.RestrictCitizenShoppingAccess = isChecked;
+        }
+
+        private void RestrictCitizenWorkAccessClicked(bool isChecked)
+        {
+            Settings.RestrictCitizenWorkAccess = isChecked;
         }
     }
 

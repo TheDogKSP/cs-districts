@@ -53,6 +53,14 @@ namespace GSteigertDistricts
                         return Settings.RestrictCitizenShoppingAccess ?
                             (dstDistrict == 0 || srcDistrict == dstDistrict) : true;
 
+                    // resident going to work
+                    case TransferManager.TransferReason.Worker0:
+                    case TransferManager.TransferReason.Worker1:
+                    case TransferManager.TransferReason.Worker2:
+                    case TransferManager.TransferReason.Worker3:
+                        return Settings.RestrictCitizenWorkAccess ?
+                            (dstDistrict == 0 || srcDistrict == dstDistrict) : true;
+
                     default:
                         return true;
                 }

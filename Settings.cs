@@ -14,6 +14,7 @@ namespace GSteigertDistricts
         private static bool? restrictCitizenHealthAccess;
         private static bool? restrictCitizenParkAccess;
         private static bool? restrictCitizenShoppingAccess;
+        private static bool? restrictCitizenWorkAccess;
 
         public static bool RestrictServiceDispatching
         {
@@ -55,7 +56,7 @@ namespace GSteigertDistricts
             {
                 if (!restrictCitizenEducationalAccess.HasValue)
                 {
-                    restrictCitizenEducationalAccess = (PlayerPrefs.GetInt("DSL_RCEA", 1) == 1);
+                    restrictCitizenEducationalAccess = (PlayerPrefs.GetInt("DSL_RCEA", 0) == 1);
                 }
                 return restrictCitizenEducationalAccess.Value;
             }
@@ -72,7 +73,7 @@ namespace GSteigertDistricts
             {
                 if (!restrictCitizenHealthAccess.HasValue)
                 {
-                    restrictCitizenHealthAccess = (PlayerPrefs.GetInt("DSL_RCHA", 1) == 1);
+                    restrictCitizenHealthAccess = (PlayerPrefs.GetInt("DSL_RCHA", 0) == 1);
                 }
                 return restrictCitizenHealthAccess.Value;
             }
@@ -89,7 +90,7 @@ namespace GSteigertDistricts
             {
                 if (!restrictCitizenParkAccess.HasValue)
                 {
-                    restrictCitizenParkAccess = (PlayerPrefs.GetInt("DSL_RCPA", 1) == 1);
+                    restrictCitizenParkAccess = (PlayerPrefs.GetInt("DSL_RCPA", 0) == 1);
                 }
                 return restrictCitizenParkAccess.Value;
             }
@@ -106,7 +107,7 @@ namespace GSteigertDistricts
             {
                 if (!restrictCitizenShoppingAccess.HasValue)
                 {
-                    restrictCitizenShoppingAccess = (PlayerPrefs.GetInt("DSL_RCSA", 1) == 1);
+                    restrictCitizenShoppingAccess = (PlayerPrefs.GetInt("DSL_RCSA", 0) == 1);
                 }
                 return restrictCitizenShoppingAccess.Value;
             }
@@ -114,6 +115,23 @@ namespace GSteigertDistricts
             {
                 PlayerPrefs.SetInt("DSL_RCSA", value ? 1 : 0);
                 restrictCitizenShoppingAccess = value;
+            }
+        }
+
+        public static bool RestrictCitizenWorkAccess
+        {
+            get
+            {
+                if (!restrictCitizenWorkAccess.HasValue)
+                {
+                    restrictCitizenWorkAccess = (PlayerPrefs.GetInt("DSL_RCWA", 0) == 1);
+                }
+                return restrictCitizenWorkAccess.Value;
+            }
+            set
+            {
+                PlayerPrefs.SetInt("DSL_RCWA", value ? 1 : 0);
+                restrictCitizenWorkAccess = value;
             }
         }
     }
