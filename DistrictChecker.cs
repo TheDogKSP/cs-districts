@@ -6,13 +6,10 @@ namespace GSteigertDistricts
 {
     internal static class DistrictChecker
     {
-        private static DistrictManager districtManager = Singleton<DistrictManager>.instance;
-        private static BuildingManager buildingManager = Singleton<BuildingManager>.instance;
-        private static CitizenManager citizenManager = Singleton<CitizenManager>.instance;
-
         private static bool IsTransferAllowed(Vector3 source, Vector3 destination,
-            TransferManager.TransferReason reason, bool isResidentTransfer)
+            ushort buildingID, TransferManager.TransferReason reason, bool isResidentTransfer)
         {
+            DistrictManager districtManager = Singleton<DistrictManager>.instance;
             byte srcDistrict = districtManager.GetDistrict(source);
             byte dstDistrict = districtManager.GetDistrict(destination);
 
@@ -67,6 +64,7 @@ namespace GSteigertDistricts
             }
             else
             {
+                ServiceBuildingOptions opts = ServiceBuildingOptions.GetInstance();
                 switch (reason)
                 {
                     // vehicle fetching something
@@ -80,18 +78,24 @@ namespace GSteigertDistricts
                     case TransferManager.TransferReason.Taxi:
                     case TransferManager.TransferReason.Snow:
                     case TransferManager.TransferReason.RoadMaintenance:
-                        return Settings.RestrictServiceDispatching ?
-                            (srcDistrict == 0 || srcDistrict == dstDistrict) : true;
+                        return !Settings.RestrictServiceDispatching ? true :
+                            (srcDistrict == 0
+                                || srcDistrict == dstDistrict
+                                || opts.IsDestinationAllowed(buildingID, dstDistrict));
 
                     // vehicle freeing building capacity
                     case TransferManager.TransferReason.CriminalMove:
-                        return Settings.RestrictMaterialTransfer ?
-                            (srcDistrict == 0 || srcDistrict == dstDistrict) : true;
+                        return !Settings.RestrictMaterialTransfer ? true :
+                            (srcDistrict == 0
+                                || srcDistrict == dstDistrict
+                                || opts.IsDestinationAllowed(buildingID, dstDistrict));
                     case TransferManager.TransferReason.DeadMove:
                     case TransferManager.TransferReason.GarbageMove:
                     case TransferManager.TransferReason.SnowMove:
-                        return Settings.RestrictMaterialTransfer ?
-                            (dstDistrict == 0 || srcDistrict == dstDistrict) : true;
+                        return !Settings.RestrictMaterialTransfer ? true :
+                            (dstDistrict == 0
+                                || srcDistrict == dstDistrict
+                                || opts.IsDestinationAllowed(buildingID, dstDistrict));
 
                     default:
                         return true;
@@ -103,7 +107,7 @@ namespace GSteigertDistricts
             TransferManager.TransferReason reason, TransferManager.TransferOffer offer,
             bool summarizedLog = false)
         {
-            bool allowed = DistrictChecker.IsTransferAllowed(data.m_position, offer.Position, reason, false);
+            bool allowed = DistrictChecker.IsTransferAllowed(data.m_position, offer.Position, buildingID, reason, false);
 
 #if DEBUG
             if (summarizedLog)
@@ -112,6 +116,10 @@ namespace GSteigertDistricts
             }
             else
             {
+                DistrictManager districtManager = Singleton<DistrictManager>.instance;
+                BuildingManager buildingManager = Singleton<BuildingManager>.instance;
+                CitizenManager citizenManager = Singleton<CitizenManager>.instance;
+
                 string srcBuilding = buildingManager.GetBuildingName(buildingID, InstanceID.Empty);
                 string dstBuilding = buildingManager.GetBuildingName(offer.Building, InstanceID.Empty);
                 string dstCitizen = citizenManager.GetCitizenName(offer.Citizen);
@@ -133,10 +141,15 @@ namespace GSteigertDistricts
         public static bool IsVehicleTransferAllowed(ushort vehicleID, ref Vehicle data,
             TransferManager.TransferReason reason, TransferManager.TransferOffer offer)
         {
-            Building building = buildingManager.m_buildings.m_buffer[(int)data.m_sourceBuilding];
-            bool allowed = DistrictChecker.IsTransferAllowed(building.m_position, offer.Position, reason, false);
+            BuildingManager buildingManager = Singleton<BuildingManager>.instance;
+            ushort buildingID = data.m_sourceBuilding;
+            Building building = buildingManager.m_buildings.m_buffer[(int)buildingID];
+            bool allowed = DistrictChecker.IsTransferAllowed(building.m_position, offer.Position, buildingID, reason, false);
 
 #if DEBUG
+            DistrictManager districtManager = Singleton<DistrictManager>.instance;
+            CitizenManager citizenManager = Singleton<CitizenManager>.instance;
+
             string srcBuilding = buildingManager.GetBuildingName(data.m_sourceBuilding, InstanceID.Empty);
             string dstBuilding = buildingManager.GetBuildingName(offer.Building, InstanceID.Empty);
             string dstCitizen = citizenManager.GetCitizenName(offer.Citizen);
@@ -157,10 +170,14 @@ namespace GSteigertDistricts
         public static bool IsCitizenTransferAllowed(uint citizenID, ref Citizen data,
             TransferManager.TransferReason reason, TransferManager.TransferOffer offer)
         {
+            BuildingManager buildingManager = Singleton<BuildingManager>.instance;
             Building building = buildingManager.m_buildings.m_buffer[(int)data.m_homeBuilding];
-            bool allowed = DistrictChecker.IsTransferAllowed(building.m_position, offer.Position, reason, true);
+            bool allowed = DistrictChecker.IsTransferAllowed(building.m_position, offer.Position, 0, reason, true);
 
 #if DEBUG
+            DistrictManager districtManager = Singleton<DistrictManager>.instance;
+            CitizenManager citizenManager = Singleton<CitizenManager>.instance;
+
             string srcBuilding = buildingManager.GetBuildingName(data.m_homeBuilding, InstanceID.Empty);
             string dstBuilding = buildingManager.GetBuildingName(offer.Building, InstanceID.Empty);
             string dstCitizen = citizenManager.GetCitizenName(offer.Citizen);
@@ -180,6 +197,7 @@ namespace GSteigertDistricts
 
         private static string FindDistrictName(Vector3 position)
         {
+            DistrictManager districtManager = Singleton<DistrictManager>.instance;
             byte districtId = districtManager.GetDistrict(position);
             string districtName = districtManager.GetDistrictName(districtId);
             return (districtName == null ? "<undefined>" : districtName) + ":" + districtId;

@@ -83,11 +83,6 @@ namespace GSteigertDistricts
             }
         }
 
-        public override void OnLevelUnloading()
-        {
-            ServiceBuildingOptions.GetInstance().Clear();
-        }
-
         private void ActivateMod()
         {
             Utils.LogGeneral("[Loading mod]");
@@ -138,8 +133,8 @@ namespace GSteigertDistricts
 
             long duration = (DateTime.Now - then).Milliseconds;
 
-            Utils.LogGeneral("District Service Limit mod loaded in " + duration + "ms");
             Utils.LogGeneral("[/Loading mod]\n");
+            Utils.LogGeneral("District Service Limit mod loaded in " + duration + "ms");
         }
     }
 }

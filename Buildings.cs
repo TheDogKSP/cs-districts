@@ -166,7 +166,7 @@ namespace GSteigertDistricts
             ItemClass.Service service)
         {
 #if DEBUG
-            Utils.LogBuilding(String.Format(" - Searching another building to delegate"));
+            Utils.LogBuilding(" - Searching another building to delegate");
 #endif
 
             Type aiType = data.Info.m_buildingAI.GetType().BaseType;

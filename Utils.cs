@@ -9,6 +9,12 @@ namespace GSteigertDistricts
 {
     internal static class Utils
     {
+#if DEBUG
+        private const bool LOG_ENABLED = true;
+#else
+        private const bool LOG_ENABLED = false;
+#endif
+
         private static object logLock = new object();
         private static string generalLogPath;
         private static string buildingLogPath;
@@ -26,8 +32,6 @@ namespace GSteigertDistricts
             File.Delete(buildingLogPath);
             File.Delete(vehicleLogPath);
             File.Delete(citizenLogPath);
-
-            LogInfo("Writing verbose logs in: " + DataLocation.localApplicationData);
         }
 
         public static String ToString(object obj)
@@ -44,6 +48,11 @@ namespace GSteigertDistricts
 
         public static void LogGeneral(String message)
         {
+            if (!LOG_ENABLED)
+            {
+                return;
+            }
+
             try
             {
                 Monitor.Enter(logLock);
@@ -60,6 +69,11 @@ namespace GSteigertDistricts
 
         public static void LogBuilding(String message)
         {
+            if (!LOG_ENABLED)
+            {
+                return;
+            }
+
             try
             {
                 Monitor.Enter(logLock);
@@ -76,6 +90,11 @@ namespace GSteigertDistricts
 
         public static void LogVehicle(String message)
         {
+            if (!LOG_ENABLED)
+            {
+                return;
+            }
+
             try
             {
                 Monitor.Enter(logLock);
@@ -92,6 +111,11 @@ namespace GSteigertDistricts
 
         public static void LogCitizen(String message)
         {
+            if (!LOG_ENABLED)
+            {
+                return;
+            }
+
             try
             {
                 Monitor.Enter(logLock);
@@ -108,6 +132,11 @@ namespace GSteigertDistricts
 
         public static void LogInfo(string message)
         {
+            if (!LOG_ENABLED)
+            {
+                return;
+            }
+
             DebugOutputPanel.AddMessage(PluginManager.MessageType.Message,
                 "[District Service Limit] " + message);
         }
