@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
 using ICities;
 using ColossalFramework;
 using ColossalFramework.IO;
-using ColossalFramework.Math;
-using ColossalFramework.Globalization;
 
 namespace GSteigertDistricts
 {
@@ -37,7 +34,12 @@ namespace GSteigertDistricts
             return GetData(buildingID).IsTargetDistrictAllowed(targetDistrictID);
         }
 
-        public ServiceBuildingData GetData(ushort buildingID)
+        public void SetDestinationAllowed(ushort buildingID, byte targetDistrictID, bool allowed)
+        {
+            GetData(buildingID).SetTargetDistrictAllowed(targetDistrictID, allowed);
+        }
+
+        internal ServiceBuildingData GetData(ushort buildingID)
         {
             if (!IsSupported(buildingID))
             {
@@ -58,7 +60,7 @@ namespace GSteigertDistricts
             }
         }
 
-        public void SetData(ushort buildingID, ServiceBuildingData data)
+        internal void SetData(ushort buildingID, ServiceBuildingData data)
         {
             m_serviceBuildingInfos.Add(buildingID, data);
         }
@@ -79,7 +81,7 @@ namespace GSteigertDistricts
         {
             foreach (ServiceBuildingData data in m_serviceBuildingInfos.Values)
             {
-                data.RemoveDistrict(districtID);
+                data.SetTargetDistrictAllowed(districtID, false);
             }
         }
 
@@ -120,11 +122,15 @@ namespace GSteigertDistricts
             return additionalServedDistricts.Contains(districtID);
         }
 
-        public void RemoveDistrict(byte districtID)
+        internal void SetTargetDistrictAllowed(byte districtID, bool allowed)
         {
-            if (additionalServedDistricts.Remove(districtID))
+            if (allowed)
             {
-                Utils.LogGeneral("Removing district from building's allowed targets");
+                additionalServedDistricts.Add(districtID);
+            }
+            else
+            {
+                additionalServedDistricts.Remove(districtID);
             }
         }
 
@@ -181,6 +187,7 @@ namespace GSteigertDistricts
                 if (bytes == null)
                 {
                     Utils.LogGeneral("No saved data found");
+                    Utils.LogGeneral("[/SerializableDataExtension]\n");
                     return;
                 }
 
@@ -211,13 +218,21 @@ namespace GSteigertDistricts
                 Utils.LogGeneral("[SerializableDataExtension]");
                 Utils.LogGeneral("Writing save data now");
 
+                ServiceBuildingData[] dataArray = ServiceBuildingOptions.GetInstance().ToArray();
+                if (dataArray == null || dataArray.Length == 0)
+                {
+                    Utils.LogGeneral("Nothing to save");
+                    Utils.LogGeneral("[/SerializableDataExtension]\n");
+                    return;
+                }
+
                 byte[] bytes;
                 using (var stream = new MemoryStream())
                 {
                     DataSerializer.SerializeArray(stream,
                         DataSerializer.Mode.Memory,
                         VERSION,
-                        ServiceBuildingOptions.GetInstance().ToArray());
+                        dataArray);
                     bytes = stream.ToArray();
                 }
 

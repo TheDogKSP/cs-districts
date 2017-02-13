@@ -86,6 +86,7 @@ namespace GSteigertDistricts
         public override void OnLevelUnloading()
         {
             ServiceBuildingOptions.GetInstance().Clear();
+            DistrictSelectionPanel.Uninstall();
         }
 
         private void ActivateMod()
@@ -135,6 +136,8 @@ namespace GSteigertDistricts
 
             // replace the residents
             ReplaceHelper.ReplacePersonAI<ResidentAI, ResidentAIMod>();
+
+            DistrictSelectionPanel.Install();
 
             long duration = (DateTime.Now - then).Milliseconds;
 
