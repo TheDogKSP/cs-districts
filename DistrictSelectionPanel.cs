@@ -17,20 +17,12 @@ namespace GSteigertDistricts
     class DistrictSelectionPanel : UIPanel
     {
         private CityServiceWorldInfoPanel basePanel;
-        private Dictionary<byte, string> districts;
         private FieldInfo instanceIdFieldInfo;
-
         private UILabel title;
-        private UIScrollablePanel scroller;
-
-        private ushort lastBuildingID;
+        private UIFastList fastList;
+        internal ushort lastBuildingID;
         private bool displayRequested;
         private int updateCount;
-
-        public DistrictSelectionPanel()
-        {
-            districts = new Dictionary<byte, string>();
-        }
 
         public override void Start()
         {
@@ -39,29 +31,28 @@ namespace GSteigertDistricts
             this.autoLayout = true;
             this.autoLayoutStart = LayoutStart.TopLeft;
             this.autoLayoutDirection = LayoutDirection.Vertical;
-            this.autoLayoutPadding = new RectOffset(10, 10, 10, 10);
             this.autoSize = false;
+            this.canFocus = true;
+            this.isInteractive = true;
             this.width = 220;
             this.height = 285;
-            this.backgroundSprite = "GenericPanel";
+            this.backgroundSprite = "MenuPanel2";
 
             Hide();
 
             title = AddUIComponent<UILabel>();
             title.width = 220;
             title.height = 30;
-            title.textAlignment = UIHorizontalAlignment.Right;
-            title.text = "Coverage";
+            title.textScale = 0.9f;
+            title.textAlignment = UIHorizontalAlignment.Center;
+            title.text = "Additional coverage";
+            title.padding = new RectOffset(10, 10, 10, 10);
 
-            scroller = AddUIComponent<UIScrollablePanel>();
-            scroller.width = 220;
-            scroller.height = this.height - title.height;
-
-            for (int i = 0; i < 50; i++)
-            {
-                UILabel title = scroller.AddUIComponent<UILabel>();
-                title.text = "Some district";
-            }
+            fastList = UIFastList.Create<DistrictRow>(this);
+            fastList.size = new Vector2(this.width, this.height - title.height);
+            fastList.rowHeight = 28;
+            fastList.canSelect = false;
+            fastList.rowsData = new FastList<object>();
         }
 
         /**
@@ -105,19 +96,24 @@ namespace GSteigertDistricts
             return ((InstanceID)instanceIdFieldInfo.GetValue(basePanel)).Building;
         }
 
-        private void RefreshData()
+        private void RefreshData(ushort selectedBuildingID)
         {
-            districts.Clear();
+            fastList.Clear();
 
             DistrictManager districtManager = Singleton<DistrictManager>.instance;
-            for (int index = 0; index < 128; ++index)
+            Building building = Singleton<BuildingManager>.instance.m_buildings.m_buffer[selectedBuildingID];
+            byte selectedBuildingDistrictID = districtManager.GetDistrict(building.m_position);
+
+            for (int index = 1; index < 128; ++index)
             {
-                District district = districtManager.m_districts.m_buffer[index];
-                if (district.m_flags != District.Flags.None)
+                if (index != selectedBuildingDistrictID && DistrictChecker.IsActive((byte)index))
                 {
-                    districts.Add((byte)index, districtManager.GetDistrictName(index));
+                    string name = districtManager.GetDistrictName(index);
+                    fastList.rowsData.Add(new object[] { (byte)index, name });
                 }
             }
+
+            fastList.DisplayAt(0);
         }
 
         private void Show(ushort selectedBuildingID)
@@ -128,9 +124,9 @@ namespace GSteigertDistricts
                 return;
             }
 
-            RefreshData();
+            RefreshData(selectedBuildingID);
 
-            if (districts.Count == 0)
+            if (fastList.rowsData.m_size == 0)
             {
                 Hide();
                 return;
@@ -160,31 +156,28 @@ namespace GSteigertDistricts
 
         private void OnVisibilityChanged(UIComponent component, bool visible)
         {
-            //Utils.LogGeneral("OnVisibilityChanged:visible=" + visible);
             RefreshVisibility(visible);
         }
 
         private void OnPositionChanged(UIComponent component, Vector2 position)
         {
             bool visible = basePanel.component.isVisible;
-            //Utils.LogGeneral("OnPositionChanged:visible=" + visible);
             RefreshVisibility(visible);
         }
 
         // Static members
 
         private static GameObject Root;
-        private static DistrictSelectionPanel Panel;
+        internal static DistrictSelectionPanel Panel;
 
         public static void Install()
         {
-            Utils.LogGeneral("Installing DistrictSelectionPanel");
             Root = new GameObject("DistrictSelectionPanelGO");
             Panel = Root.AddComponent<DistrictSelectionPanel>();
 
             UIPanel servicePanel = UIView.Find<UIPanel>("(Library) CityServiceWorldInfoPanel");
             Panel.transform.parent = servicePanel.transform;
-            Panel.position = new Vector3(servicePanel.width + 10, servicePanel.height);
+            Panel.position = new Vector3(servicePanel.width + 5, servicePanel.height);
             Panel.basePanel = servicePanel.gameObject.transform.GetComponentInChildren<CityServiceWorldInfoPanel>();
             servicePanel.eventVisibilityChanged += Panel.OnVisibilityChanged;
             servicePanel.eventPositionChanged += Panel.OnPositionChanged;
@@ -192,7 +185,6 @@ namespace GSteigertDistricts
 
         public static void Uninstall()
         {
-            Utils.LogGeneral("Uninstalling DistrictSelectionPanel");
             if (Root != null)
             {
                 UIPanel servicePanel = UIView.Find<UIPanel>("(Library) CityServiceWorldInfoPanel");
@@ -202,6 +194,72 @@ namespace GSteigertDistricts
                 Panel = null;
                 Root = null;
             }
+        }
+    }
+
+    class DistrictRow : UIPanel, IUIFastListRow
+    {
+        private UIPanel background;
+        private UICheckBox checkbox;
+        private byte districtID;
+        private string districtName;
+        private ushort buildingID;
+        private bool ignoreEvents;
+
+        public DistrictRow()
+        {
+            background = AddUIComponent<UIPanel>();
+            background.atlas = UIUtils.GetAtlas("Ingame");
+            background.width = 210;
+            background.height = 28;
+            background.relativePosition = Vector2.zero;
+            background.zOrder = 0;
+
+            checkbox = UIUtils.CreateCheckBox(this);
+            checkbox.eventCheckChanged += OnCheckChanged;
+        }
+
+        private void OnCheckChanged(UIComponent component, bool value)
+        {
+            if (!ignoreEvents)
+            {
+                ServiceBuildingOptions.GetInstance().SetAdditionalTarget(buildingID, districtID, value);
+            }
+        }
+
+        public void Display(object data, bool isRowOdd)
+        {
+            ignoreEvents = true;
+
+            if (isRowOdd)
+            {
+                background.backgroundSprite = null;
+            }
+            else
+            {
+                background.backgroundSprite = "UnlockingItemBackground";
+                background.color = new Color32(0, 0, 0, 50);
+            }
+
+            object[] info = (object[])data;
+            districtID = (byte)info[0];
+            districtName = (string)info[1];
+            buildingID = DistrictSelectionPanel.Panel.lastBuildingID;
+
+            checkbox.isChecked = ServiceBuildingOptions.GetInstance().IsAdditionalTarget(buildingID, districtID);
+            checkbox.text = districtName;
+
+            ignoreEvents = false;
+        }
+
+        public void Select(bool isRowOdd)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Deselect(bool isRowOdd)
+        {
+            throw new NotImplementedException();
         }
     }
 }

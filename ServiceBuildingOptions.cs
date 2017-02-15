@@ -25,24 +25,35 @@ namespace GSteigertDistricts
 
         public ServiceBuildingOptions()
         {
-            Utils.LogGeneral("Creating service building options");
             m_serviceBuildingInfos = new Dictionary<ushort, ServiceBuildingData>();
         }
 
-        public bool IsDestinationAllowed(ushort buildingID, byte targetDistrictID)
+        public bool IsAdditionalTarget(ushort buildingID, byte targetDistrictID)
         {
-            return GetData(buildingID).IsTargetDistrictAllowed(targetDistrictID);
+            if (DistrictChecker.IsActive(targetDistrictID))
+            {
+                ServiceBuildingData data = GetData(buildingID);
+                return (data == null ? false : data.IsAdditionalTarget(targetDistrictID));
+            }
+            return false;
         }
 
-        public void SetDestinationAllowed(ushort buildingID, byte targetDistrictID, bool allowed)
+        public void SetAdditionalTarget(ushort buildingID, byte targetDistrictID, bool allowed)
         {
-            GetData(buildingID).SetTargetDistrictAllowed(targetDistrictID, allowed);
+            ServiceBuildingData data = GetData(buildingID);
+            if (data != null)
+            {
+                data.SetAdditionalTarget(targetDistrictID, allowed);
+            }
         }
 
         internal ServiceBuildingData GetData(ushort buildingID)
         {
+            // the building might not be supported anymore (eg: it's district was removed), so this check
+            // must be performed before anything else
             if (!IsSupported(buildingID))
             {
+                m_serviceBuildingInfos.Remove(buildingID);
                 return null;
             }
 
@@ -54,7 +65,6 @@ namespace GSteigertDistricts
             {
                 ServiceBuildingData result = new ServiceBuildingData();
                 result.buildingID = buildingID;
-                result.additionalServedDistricts = new List<byte>();
                 SetData(buildingID, result);
                 return result;
             }
@@ -65,39 +75,33 @@ namespace GSteigertDistricts
             m_serviceBuildingInfos.Add(buildingID, data);
         }
 
-        public void OnBuildingRemoved(ushort buildingID)
+        internal void OnBuildingRemoved(ushort buildingID)
         {
-            if (IsSupported(buildingID))
+            if (m_serviceBuildingInfos.Remove(buildingID))
             {
-                if (m_serviceBuildingInfos.Remove(buildingID))
-                {
-                    Utils.LogGeneral("Removing service building configuration");
-                }
-            }
-        }
-
-        // TODO: INVOKE THIS METHOD
-        public void OnDistrictRemoved(byte districtID)
-        {
-            foreach (ServiceBuildingData data in m_serviceBuildingInfos.Values)
-            {
-                data.SetTargetDistrictAllowed(districtID, false);
+                Utils.LogGeneral("OnBuildingRemoved;buildingID=" + buildingID);
             }
         }
 
         public bool IsSupported(ushort buildingID)
         {
-            ItemClass.Service service = Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingID].Info.GetService();
-            return service.Equals(ItemClass.Service.FireDepartment)
+            Building building = Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingID];
+            ItemClass.Service service = building.Info.GetService();
+            if (service.Equals(ItemClass.Service.FireDepartment)
                    || service.Equals(ItemClass.Service.Garbage)
                    || service.Equals(ItemClass.Service.HealthCare)
                    || service.Equals(ItemClass.Service.PoliceDepartment)
-                   || service.Equals(ItemClass.Service.Road);
+                   || service.Equals(ItemClass.Service.Road))
+            {
+                DistrictManager districtManager = Singleton<DistrictManager>.instance;
+                byte districtID = districtManager.GetDistrict(building.m_position);
+                return DistrictChecker.IsActive(districtID);
+            }
+            return false;
         }
 
         public void Clear()
         {
-            Utils.LogGeneral("Clearing service building options");
             m_serviceBuildingInfos.Clear();
         }
 
@@ -109,37 +113,46 @@ namespace GSteigertDistricts
 
     public class ServiceBuildingData : IDataContainer
     {
-        public ushort buildingID;
-        public List<byte> additionalServedDistricts;
+        internal ushort buildingID;
+        private List<byte> additionalTargets;
 
         public ServiceBuildingData()
         {
-            additionalServedDistricts = new List<byte>();
         }
 
-        public bool IsTargetDistrictAllowed(byte districtID)
+        private List<byte> GetAdditionalTargets()
         {
-            return additionalServedDistricts.Contains(districtID);
+            if (additionalTargets == null)
+            {
+                additionalTargets = new List<byte>();
+            }
+            return additionalTargets;
         }
 
-        internal void SetTargetDistrictAllowed(byte districtID, bool allowed)
+        public bool IsAdditionalTarget(byte districtID)
+        {
+            return GetAdditionalTargets().Contains(districtID);
+        }
+
+        internal void SetAdditionalTarget(byte districtID, bool allowed)
         {
             if (allowed)
             {
-                additionalServedDistricts.Add(districtID);
+                GetAdditionalTargets().Add(districtID);
             }
             else
             {
-                additionalServedDistricts.Remove(districtID);
+                GetAdditionalTargets().Remove(districtID);
             }
         }
 
         public void Serialize(DataSerializer serializer)
         {
+            additionalTargets.RemoveAll(id => !DistrictChecker.IsActive(id));
             if (serializer.version >= 1)
             {
                 serializer.WriteInt32(buildingID);
-                serializer.WriteByteArray(additionalServedDistricts.ToArray());
+                serializer.WriteByteArray(GetAdditionalTargets().ToArray());
             }
         }
 
@@ -148,9 +161,9 @@ namespace GSteigertDistricts
             if (serializer.version >= 1)
             {
                 buildingID = (ushort)serializer.ReadInt32();
-                foreach (byte targetDistrict in serializer.ReadByteArray())
+                foreach (byte districtID in serializer.ReadByteArray())
                 {
-                    additionalServedDistricts.Add(targetDistrict);
+                    GetAdditionalTargets().Add(districtID);
                 }
             }
         }
@@ -178,16 +191,11 @@ namespace GSteigertDistricts
             base.OnLoadData();
             try
             {
-                Utils.LogGeneral("[SerializableDataExtension]");
-                Utils.LogGeneral("Checking saved data now");
-
                 ServiceBuildingOptions.GetInstance().Clear();
 
                 byte[] bytes = serializableDataManager.LoadData(KEY);
                 if (bytes == null)
                 {
-                    Utils.LogGeneral("No saved data found");
-                    Utils.LogGeneral("[/SerializableDataExtension]\n");
                     return;
                 }
 
@@ -200,13 +208,10 @@ namespace GSteigertDistricts
                         ServiceBuildingOptions.GetInstance().SetData(data.buildingID, data);
                     }
                 }
-
-                Utils.LogGeneral("Save data successfully loaded");
-                Utils.LogGeneral("[/SerializableDataExtension]\n");
             }
             catch (Exception e)
             {
-                Utils.LogGeneral("Error while loading data: " + e.StackTrace);
+                Utils.LogGeneral("Error while loading data: " + e.Message + "\n" + e.StackTrace);
             }
         }
 
@@ -215,14 +220,9 @@ namespace GSteigertDistricts
             base.OnSaveData();
             try
             {
-                Utils.LogGeneral("[SerializableDataExtension]");
-                Utils.LogGeneral("Writing save data now");
-
                 ServiceBuildingData[] dataArray = ServiceBuildingOptions.GetInstance().ToArray();
                 if (dataArray == null || dataArray.Length == 0)
                 {
-                    Utils.LogGeneral("Nothing to save");
-                    Utils.LogGeneral("[/SerializableDataExtension]\n");
                     return;
                 }
 
@@ -237,13 +237,10 @@ namespace GSteigertDistricts
                 }
 
                 serializableDataManager.SaveData(KEY, bytes);
-
-                Utils.LogGeneral("Save data successfully written");
-                Utils.LogGeneral("[/SerializableDataExtension]\n");
             }
             catch (Exception e)
             {
-                Utils.LogGeneral("Error while saving data: " + e.StackTrace);
+                Utils.LogGeneral("Error while saving data: " + e.Message + "\n" + e.StackTrace);
             }
         }
     }

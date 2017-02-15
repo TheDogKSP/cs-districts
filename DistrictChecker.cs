@@ -81,21 +81,21 @@ namespace GSteigertDistricts
                         return !Settings.RestrictServiceDispatching ? true :
                             (srcDistrict == 0
                                 || srcDistrict == dstDistrict
-                                || opts.IsDestinationAllowed(buildingID, dstDistrict));
+                                || opts.IsAdditionalTarget(buildingID, dstDistrict));
 
                     // vehicle freeing building capacity
                     case TransferManager.TransferReason.CriminalMove:
                         return !Settings.RestrictMaterialTransfer ? true :
                             (srcDistrict == 0
                                 || srcDistrict == dstDistrict
-                                || opts.IsDestinationAllowed(buildingID, dstDistrict));
+                                || opts.IsAdditionalTarget(buildingID, dstDistrict));
                     case TransferManager.TransferReason.DeadMove:
                     case TransferManager.TransferReason.GarbageMove:
                     case TransferManager.TransferReason.SnowMove:
                         return !Settings.RestrictMaterialTransfer ? true :
                             (dstDistrict == 0
                                 || srcDistrict == dstDistrict
-                                || opts.IsDestinationAllowed(buildingID, dstDistrict));
+                                || opts.IsAdditionalTarget(buildingID, dstDistrict));
 
                     default:
                         return true;
@@ -201,6 +201,22 @@ namespace GSteigertDistricts
             byte districtId = districtManager.GetDistrict(position);
             string districtName = districtManager.GetDistrictName(districtId);
             return (districtName == null ? "<undefined>" : districtName) + ":" + districtId;
+        }
+
+        public static bool IsActive(byte districtID)
+        {
+            if (districtID == 0)
+            {
+                return false;
+            }
+
+            DistrictManager districtManager = Singleton<DistrictManager>.instance;
+            if (districtManager.m_districts.m_buffer[districtID].m_flags == District.Flags.None)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

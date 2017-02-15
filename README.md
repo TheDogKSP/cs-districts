@@ -9,3 +9,7 @@ This mod allows city mayors playing `Cities Skylines` to restrict the dispatchin
 ## Technical notes
 
 This mod is implemented in C# using the Colossal Order API and replaces the AI of some game objects. As a result, it's very likely to conflict with other mods that have a similar approach to function.
+
+## Special thanks
+
+SamsamTS, for sharing such a nice UI controls to be used in the mod.

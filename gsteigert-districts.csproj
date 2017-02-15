@@ -48,6 +48,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="ReplaceHelper.cs" />
+    <Compile Include="UIFastList.cs" />
+    <Compile Include="UIUtils.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="DistrictChecker.cs" />
     <Compile Include="People.cs" />
