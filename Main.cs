@@ -10,7 +10,7 @@ namespace GSteigertDistricts
 
         public void OnSettingsUI(UIHelperBase helper)
         {
-            UIHelperBase group1 = helper.AddGroup("Service Dispatching");
+            UIHelperBase group1 = helper.AddGroup("Service dispatching");
             group1.AddSpace(10);
             group1.AddCheckbox("Service buildings will only dispatch vehicles to the current district"
                 + "\n(e.g.: garbage trucks, police cars, hearses, ambulances, etc)",
@@ -34,6 +34,12 @@ namespace GSteigertDistricts
             group2.AddCheckbox("Citizens will only work in the current district",
                 Settings.RestrictCitizenWorkAccess, RestrictCitizenWorkAccessClicked);
             group2.AddSpace(5);
+
+            UIHelperBase group3 = helper.AddGroup("Other settings");
+            group3.AddSpace(5);
+            group3.AddCheckbox("Display the additional coverage panel on the left side",
+                Settings.DisplayBuildingOptionsOnLeftSide, DisplayBuildingOptionsOnLeftSideClicked);
+            group3.AddSpace(5);
         }
 
         private void RestrictServiceDispatchingClicked(bool isChecked)
@@ -69,6 +75,12 @@ namespace GSteigertDistricts
         private void RestrictCitizenWorkAccessClicked(bool isChecked)
         {
             Settings.RestrictCitizenWorkAccess = isChecked;
+        }
+
+        private void DisplayBuildingOptionsOnLeftSideClicked(bool isChecked)
+        {
+            Settings.DisplayBuildingOptionsOnLeftSide = isChecked;
+            DistrictSelectionPanel.AdjustPosition();
         }
     }
 

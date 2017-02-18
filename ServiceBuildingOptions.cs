@@ -28,14 +28,21 @@ namespace GSteigertDistricts
             m_serviceBuildingInfos = new Dictionary<ushort, ServiceBuildingData>();
         }
 
-        public bool IsAdditionalTarget(ushort buildingID, byte targetDistrictID)
+        public bool IsTargetCovered(ushort buildingID, byte targetDistrictID)
         {
             if (DistrictChecker.IsActive(targetDistrictID))
             {
                 ServiceBuildingData data = GetData(buildingID);
-                return (data == null ? false : data.IsAdditionalTarget(targetDistrictID));
+                return (data == null ? false :
+                    (data.AreAllDistrictsServed() || data.IsAdditionalTarget(targetDistrictID)));
             }
             return false;
+        }
+
+        public bool IsAdditionalTarget(ushort buildingID, byte targetDistrictID)
+        {
+            ServiceBuildingData data = GetData(buildingID);
+            return (data == null ? false : data.IsAdditionalTarget(targetDistrictID));
         }
 
         public void SetAdditionalTarget(ushort buildingID, byte targetDistrictID, bool allowed)
@@ -44,6 +51,21 @@ namespace GSteigertDistricts
             if (data != null)
             {
                 data.SetAdditionalTarget(targetDistrictID, allowed);
+            }
+        }
+
+        public bool AreAllDistrictsServed(ushort buildingID)
+        {
+            ServiceBuildingData data = GetData(buildingID);
+            return (data == null ? false : data.AreAllDistrictsServed());
+        }
+
+        public void SetAllDistrictsServed(ushort buildingID, bool value)
+        {
+            ServiceBuildingData data = GetData(buildingID);
+            if (data != null)
+            {
+                data.SetAllDistrictsServed(value);
             }
         }
 
@@ -115,6 +137,7 @@ namespace GSteigertDistricts
     {
         internal ushort buildingID;
         private List<byte> additionalTargets;
+        private bool allDistrictsServed;
 
         public ServiceBuildingData()
         {
@@ -127,6 +150,16 @@ namespace GSteigertDistricts
                 additionalTargets = new List<byte>();
             }
             return additionalTargets;
+        }
+
+        public bool AreAllDistrictsServed()
+        {
+            return allDistrictsServed;
+        }
+
+        public void SetAllDistrictsServed(bool value)
+        {
+            allDistrictsServed = value;
         }
 
         public bool IsAdditionalTarget(byte districtID)
@@ -148,11 +181,15 @@ namespace GSteigertDistricts
 
         public void Serialize(DataSerializer serializer)
         {
-            additionalTargets.RemoveAll(id => !DistrictChecker.IsActive(id));
+            GetAdditionalTargets().RemoveAll(id => !DistrictChecker.IsActive(id));
             if (serializer.version >= 1)
             {
                 serializer.WriteInt32(buildingID);
                 serializer.WriteByteArray(GetAdditionalTargets().ToArray());
+            }
+            if (serializer.version >= 2)
+            {
+                serializer.WriteBool(AreAllDistrictsServed());
             }
         }
 
@@ -165,6 +202,10 @@ namespace GSteigertDistricts
                 {
                     GetAdditionalTargets().Add(districtID);
                 }
+            }
+            if (serializer.version >= 2)
+            {
+                SetAllDistrictsServed(serializer.ReadBool());
             }
         }
 
@@ -183,65 +224,62 @@ namespace GSteigertDistricts
 
     public class ServiceBuildingDataLoader : SerializableDataExtensionBase
     {
-        private const uint VERSION = 1;
+        private const uint VERSION = 2;
         private const string KEY = "GSteigertDistricts.savedata";
 
         public override void OnLoadData()
         {
             base.OnLoadData();
-            try
+#if RELEASE
+            try {
+#endif
+            ServiceBuildingOptions.GetInstance().Clear();
+            byte[] bytes = serializableDataManager.LoadData(KEY);
+            if (bytes == null)
             {
-                ServiceBuildingOptions.GetInstance().Clear();
+                return;
+            }
 
-                byte[] bytes = serializableDataManager.LoadData(KEY);
-                if (bytes == null)
+            ServiceBuildingData[] dataArray;
+            using (var stream = new MemoryStream(bytes))
+            {
+                dataArray = DataSerializer.DeserializeArray<ServiceBuildingData>(stream, DataSerializer.Mode.Memory);
+                foreach (ServiceBuildingData data in dataArray)
                 {
-                    return;
-                }
-
-                ServiceBuildingData[] dataArray;
-                using (var stream = new MemoryStream(bytes))
-                {
-                    dataArray = DataSerializer.DeserializeArray<ServiceBuildingData>(stream, DataSerializer.Mode.Memory);
-                    foreach (ServiceBuildingData data in dataArray)
-                    {
-                        ServiceBuildingOptions.GetInstance().SetData(data.buildingID, data);
-                    }
+                    ServiceBuildingOptions.GetInstance().SetData(data.buildingID, data);
                 }
             }
-            catch (Exception e)
-            {
-                Utils.LogGeneral("Error while loading data: " + e.Message + "\n" + e.StackTrace);
-            }
+#if RELEASE
+            } catch (Exception ignored) { }
+#endif
         }
 
         public override void OnSaveData()
         {
             base.OnSaveData();
-            try
+#if RELEASE
+            try {
+#endif
+            ServiceBuildingData[] dataArray = ServiceBuildingOptions.GetInstance().ToArray();
+            if (dataArray == null || dataArray.Length == 0)
             {
-                ServiceBuildingData[] dataArray = ServiceBuildingOptions.GetInstance().ToArray();
-                if (dataArray == null || dataArray.Length == 0)
-                {
-                    return;
-                }
-
-                byte[] bytes;
-                using (var stream = new MemoryStream())
-                {
-                    DataSerializer.SerializeArray(stream,
-                        DataSerializer.Mode.Memory,
-                        VERSION,
-                        dataArray);
-                    bytes = stream.ToArray();
-                }
-
-                serializableDataManager.SaveData(KEY, bytes);
+                return;
             }
-            catch (Exception e)
+
+            byte[] bytes;
+            using (var stream = new MemoryStream())
             {
-                Utils.LogGeneral("Error while saving data: " + e.Message + "\n" + e.StackTrace);
+                DataSerializer.SerializeArray(stream,
+                    DataSerializer.Mode.Memory,
+                    VERSION,
+                    dataArray);
+                bytes = stream.ToArray();
             }
+
+            serializableDataManager.SaveData(KEY, bytes);
+#if RELEASE
+            } catch (Exception ignored) { }
+#endif
         }
     }
 }

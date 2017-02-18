@@ -15,6 +15,7 @@ namespace GSteigertDistricts
         private static bool? restrictCitizenParkAccess;
         private static bool? restrictCitizenShoppingAccess;
         private static bool? restrictCitizenWorkAccess;
+        private static bool? displayBuildingOptionsOnLeftSide;
 
         public static bool RestrictServiceDispatching
         {
@@ -132,6 +133,23 @@ namespace GSteigertDistricts
             {
                 PlayerPrefs.SetInt("DSL_RCWA", value ? 1 : 0);
                 restrictCitizenWorkAccess = value;
+            }
+        }
+
+        public static bool DisplayBuildingOptionsOnLeftSide
+        {
+            get
+            {
+                if (!displayBuildingOptionsOnLeftSide.HasValue)
+                {
+                    displayBuildingOptionsOnLeftSide = (PlayerPrefs.GetInt("DSL_DBOOLS", 0) == 1);
+                }
+                return displayBuildingOptionsOnLeftSide.Value;
+            }
+            set
+            {
+                PlayerPrefs.SetInt("DSL_DBOOLS", value ? 1 : 0);
+                displayBuildingOptionsOnLeftSide = value;
             }
         }
     }

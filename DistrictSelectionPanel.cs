@@ -16,6 +16,9 @@ namespace GSteigertDistricts
 {
     class DistrictSelectionPanel : UIPanel
     {
+        internal static string ALL_DISTRICTS = "All districts";
+        internal static int WIDTH = 220;
+
         private CityServiceWorldInfoPanel basePanel;
         private FieldInfo instanceIdFieldInfo;
         private UILabel title;
@@ -34,7 +37,7 @@ namespace GSteigertDistricts
             this.autoSize = false;
             this.canFocus = true;
             this.isInteractive = true;
-            this.width = 220;
+            this.width = WIDTH;
             this.height = 285;
             this.backgroundSprite = "MenuPanel2";
 
@@ -99,6 +102,7 @@ namespace GSteigertDistricts
         private void RefreshData(ushort selectedBuildingID)
         {
             fastList.Clear();
+            fastList.rowsData.Add(new object[] { (byte)0, ALL_DISTRICTS });
 
             DistrictManager districtManager = Singleton<DistrictManager>.instance;
             Building building = Singleton<BuildingManager>.instance.m_buildings.m_buffer[selectedBuildingID];
@@ -121,6 +125,7 @@ namespace GSteigertDistricts
             if (!ServiceBuildingOptions.GetInstance().IsSupported(selectedBuildingID))
             {
                 Hide();
+                Utils.LogGeneral("[DistrictSelectionPanel] Won't show panel: building not supported");
                 return;
             }
 
@@ -129,6 +134,7 @@ namespace GSteigertDistricts
             if (fastList.rowsData.m_size == 0)
             {
                 Hide();
+                Utils.LogGeneral("[DistrictSelectionPanel] Won't show panel: no data to display");
                 return;
             }
 
@@ -177,10 +183,29 @@ namespace GSteigertDistricts
 
             UIPanel servicePanel = UIView.Find<UIPanel>("(Library) CityServiceWorldInfoPanel");
             Panel.transform.parent = servicePanel.transform;
-            Panel.position = new Vector3(servicePanel.width + 5, servicePanel.height);
             Panel.basePanel = servicePanel.gameObject.transform.GetComponentInChildren<CityServiceWorldInfoPanel>();
             servicePanel.eventVisibilityChanged += Panel.OnVisibilityChanged;
             servicePanel.eventPositionChanged += Panel.OnPositionChanged;
+
+            AdjustPosition();
+        }
+
+        public static void AdjustPosition()
+        {
+            if (Panel == null)
+            {
+                return;
+            }
+
+            UIPanel servicePanel = UIView.Find<UIPanel>("(Library) CityServiceWorldInfoPanel");
+            if (Settings.DisplayBuildingOptionsOnLeftSide)
+            {
+                Panel.position = new Vector3(-WIDTH - 5, servicePanel.height);
+            }
+            else
+            {
+                Panel.position = new Vector3(servicePanel.width + 5, servicePanel.height);
+            }
         }
 
         public static void Uninstall()
@@ -221,7 +246,16 @@ namespace GSteigertDistricts
 
         private void OnCheckChanged(UIComponent component, bool value)
         {
-            if (!ignoreEvents)
+            if (ignoreEvents)
+            {
+                return;
+            }
+
+            if (districtName.Equals(DistrictSelectionPanel.ALL_DISTRICTS))
+            {
+                ServiceBuildingOptions.GetInstance().SetAllDistrictsServed(buildingID, value);
+            }
+            else
             {
                 ServiceBuildingOptions.GetInstance().SetAdditionalTarget(buildingID, districtID, value);
             }
@@ -246,7 +280,9 @@ namespace GSteigertDistricts
             districtName = (string)info[1];
             buildingID = DistrictSelectionPanel.Panel.lastBuildingID;
 
-            checkbox.isChecked = ServiceBuildingOptions.GetInstance().IsAdditionalTarget(buildingID, districtID);
+            checkbox.isChecked = districtName.Equals(DistrictSelectionPanel.ALL_DISTRICTS) ?
+                ServiceBuildingOptions.GetInstance().AreAllDistrictsServed(buildingID) :
+                ServiceBuildingOptions.GetInstance().IsAdditionalTarget(buildingID, districtID);
             checkbox.text = districtName;
 
             ignoreEvents = false;
