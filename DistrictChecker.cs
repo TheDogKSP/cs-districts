@@ -84,11 +84,6 @@ namespace GSteigertDistricts
                                 || opts.IsTargetCovered(buildingID, dstDistrict));
 
                     // vehicle freeing building capacity
-                    case TransferManager.TransferReason.CriminalMove:
-                        return !Settings.RestrictMaterialTransfer ? true :
-                            (srcDistrict == 0
-                                || srcDistrict == dstDistrict
-                                || opts.IsTargetCovered(buildingID, dstDistrict));
                     case TransferManager.TransferReason.DeadMove:
                     case TransferManager.TransferReason.GarbageMove:
                     case TransferManager.TransferReason.SnowMove:
@@ -96,6 +91,10 @@ namespace GSteigertDistricts
                             (dstDistrict == 0
                                 || srcDistrict == dstDistrict
                                 || opts.IsTargetCovered(buildingID, dstDistrict));
+
+                    // ignore prisons
+                    case TransferManager.TransferReason.CriminalMove:
+                        return true;
 
                     default:
                         return true;

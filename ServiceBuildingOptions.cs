@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using ICities;
@@ -109,6 +108,14 @@ namespace GSteigertDistricts
         {
             Building building = Singleton<BuildingManager>.instance.m_buildings.m_buffer[buildingID];
             ItemClass.Service service = building.Info.GetService();
+
+            // ignore prisons
+            if (service.Equals(ItemClass.Service.PoliceDepartment)
+                && building.Info.m_class.m_level >= ItemClass.Level.Level4)
+            {
+                return false;
+            }
+
             if (service.Equals(ItemClass.Service.FireDepartment)
                    || service.Equals(ItemClass.Service.Garbage)
                    || service.Equals(ItemClass.Service.HealthCare)
