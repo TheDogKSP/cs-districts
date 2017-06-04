@@ -6,6 +6,6 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyConfiguration ("N/A")]
 [assembly: AssemblyCompany ("gsteigert Inc.")]
 [assembly: AssemblyProduct ("Districts")]
-[assembly: AssemblyCopyright ("gsteigert")]
+[assembly: AssemblyCopyright ("gsteigert & TheDog")]
 [assembly: AssemblyTrademark ("Copyleft")]
-[assembly: AssemblyVersion ("1.0.*")]
+[assembly: AssemblyVersion ("2.0.*")]

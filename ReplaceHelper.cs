@@ -21,7 +21,7 @@ namespace GSteigertDistricts
                 var newAI = info.gameObject.GetComponent<TNewAI>();
                 if (newAI != null && newAI.GetType().Equals(typeof(TNewAI))) return;
 
-                if (info.name == "Bus Depot" || info.name == "Tram Depot")
+                if (info.name == "Bus Depot" || info.name == "Tram Depot" || info.name == "Metro Depot")    //added TheDog for MOM compatibility
                 {
                     Utils.LogGeneral(String.Format(" --> Skipping: {0}", info.name));
                     return;
