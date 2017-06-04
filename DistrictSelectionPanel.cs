@@ -215,14 +215,14 @@ namespace GSteigertDistricts
         }
 
 
-    public static void AdjustPosition()
+        public static void AdjustPosition()
         {
             if (Panel == null)
             {
                 return;
             }
 
-            UIPanel servicePanel = UIView.Find<UIPanel>("(Library) CityServiceWorldInfoPanel");
+            UIPanel servicePanel = GetPanel("(Library) CityServiceWorldInfoPanel");
             if (Settings.DisplayBuildingOptionsOnLeftSide)
             {
                 Panel.position = new Vector3(-WIDTH - 5, servicePanel.height);
