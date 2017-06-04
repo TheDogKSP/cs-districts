@@ -21,7 +21,7 @@ namespace GSteigertDistricts
                 var newAI = info.gameObject.GetComponent<TNewAI>();
                 if (newAI != null && newAI.GetType().Equals(typeof(TNewAI))) return;
 
-                if (info.name == "Bus Depot" || info.name == "Tram Depot" || info.name == "Metro Depot")    //added TheDog for MOM compatibility
+                if (info.name == "Bus Depot" || info.name == "Tram Depot" || isMetroDepot(info))    //added TheDog for MOM compatibility
                 {
                     Utils.LogGeneral(String.Format(" --> Skipping: {0}", info.name));
                     return;
@@ -36,6 +36,12 @@ namespace GSteigertDistricts
                 UnityEngine.Object.Destroy(oldAI);
                 newAI.InitializePrefab();
             });
+        }
+
+        //added TheDog for MOM compatibility
+        private static bool isMetroDepot(BuildingInfo info)
+        {
+            return info?.m_class != null && info.m_buildingAI is DepotAI && info.m_class.m_service == ItemClass.Service.PublicTransport && info.m_class.m_subService == ItemClass.SubService.PublicTransportMetro;
         }
 
         public static void ReplaceVehicleAI<TOldAI, TNewAI>()
