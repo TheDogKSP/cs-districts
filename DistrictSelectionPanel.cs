@@ -11,6 +11,7 @@ using ColossalFramework.UI;
 using ColossalFramework.Math;
 using ColossalFramework.Globalization;
 using UnityEngine;
+using ColossalFramework.Plugins;
 
 namespace GSteigertDistricts
 {
@@ -181,16 +182,40 @@ namespace GSteigertDistricts
             Root = new GameObject("DistrictSelectionPanelGO");
             Panel = Root.AddComponent<DistrictSelectionPanel>();
 
-            UIPanel servicePanel = UIView.Find<UIPanel>("(Library) CityServiceWorldInfoPanel");
-            Panel.transform.parent = servicePanel.transform;
+            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, "[District Service Limit] " + "Root="+Root+ ", Panel="+Panel);
+
+            //UIPanel servicePanel = UIView.Find<UIPanel>("(Library) CityServiceWorldInfoPanel");
+            var servicePanel = GetPanel("(Library) CityServiceWorldInfoPanel");
+            if (servicePanel == null)
+            {
+                throw new Exception("UIPanel not found (update broke the mod!): (Library) CityServiceWorldInfoPanel\nAvailable panels are:\n" +
+                string.Join("  \n", GetUIPanelNames()));
+            }
+
+            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, "[District Service Limit] " + "servicePanel=" +servicePanel+ ", transform="+ servicePanel?.transform);
+
+            Panel.transform.parent = servicePanel?.transform;
             Panel.basePanel = servicePanel.gameObject.transform.GetComponentInChildren<CityServiceWorldInfoPanel>();
+
+            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, "[District Service Limit] " + "basePanel=" + Panel?.basePanel);
+
             servicePanel.eventVisibilityChanged += Panel.OnVisibilityChanged;
             servicePanel.eventPositionChanged += Panel.OnPositionChanged;
+
+            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, "[District Service Limit] " + "Entering AdjustPosition()...");
 
             AdjustPosition();
         }
 
-        public static void AdjustPosition()
+        private static IEnumerable<UIPanel> GetUIPanelInstances() => UIView.library.m_DynamicPanels.Select(p => p.instance).OfType<UIPanel>();
+        private static string[] GetUIPanelNames() => GetUIPanelInstances().Select(p => p.name).ToArray();
+        private static UIPanel GetPanel(string pname)
+        {
+             return GetUIPanelInstances().FirstOrDefault(p => p.name == pname);
+        }
+
+
+    public static void AdjustPosition()
         {
             if (Panel == null)
             {
