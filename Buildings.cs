@@ -434,11 +434,16 @@ namespace GSteigertDistricts
 
         internal static bool hasSpareVehicles(ushort buildingID, ref Building data, BuildingAI buildingAI)
         {
+
             string stats = buildingAI.GetLocalizedStats(buildingID, ref data);
-            if (stats == null)
+            if ((stats == null) || (stats == ""))
             {
                 return false;
             }
+
+#if DEBUG
+            CODebug.Log(LogChannel.Modding, "DISTRICTS: hasspareVehicles: data="+data.ToString()+" // AI="+buildingAI.ToString()+" // stats=" + stats + " // lastIndexOf=" + stats.LastIndexOf(':'));
+#endif
 
             stats = stats.Substring(stats.LastIndexOf(':') + 2);
             Match match = new Regex(@"(\d+)\D+(\d+)").Match(stats);
@@ -457,6 +462,8 @@ namespace GSteigertDistricts
             {
                 return false;
             }
+
         }
+
     }
 }
