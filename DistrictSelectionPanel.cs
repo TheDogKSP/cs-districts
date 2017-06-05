@@ -237,7 +237,8 @@ namespace GSteigertDistricts
         {
             if (Root != null)
             {
-                UIPanel servicePanel = UIView.Find<UIPanel>("(Library) CityServiceWorldInfoPanel");
+                //UIPanel servicePanel = UIView.Find<UIPanel>("(Library) CityServiceWorldInfoPanel");
+                UIPanel servicePanel = GetPanel("(Library) CityServiceWorldInfoPanel");
                 servicePanel.eventVisibilityChanged -= Panel.OnVisibilityChanged;
                 servicePanel.eventPositionChanged -= Panel.OnPositionChanged;
                 GameObject.Destroy(Root);
