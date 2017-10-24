@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using ColossalFramework;
 
-namespace GSteigertDistricts
+namespace DistrictServiceLimit
 {
     internal static class DistrictChecker
     {

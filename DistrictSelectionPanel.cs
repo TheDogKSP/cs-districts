@@ -13,7 +13,7 @@ using ColossalFramework.Globalization;
 using UnityEngine;
 using ColossalFramework.Plugins;
 
-namespace GSteigertDistricts
+namespace DistrictServiceLimit
 {
     class DistrictSelectionPanel : UIPanel
     {

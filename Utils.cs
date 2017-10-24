@@ -5,7 +5,7 @@ using System.Threading;
 using ColossalFramework.IO;
 using ColossalFramework.Plugins;
 
-namespace GSteigertDistricts
+namespace DistrictServiceLimit
 {
     internal static class Utils
     {

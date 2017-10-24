@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using ColossalFramework;
 
-namespace GSteigertDistricts
+namespace DistrictServiceLimit
 {
     public class HelicopterDepotAIMod : HelicopterDepotAI
     {

@@ -1,7 +1,7 @@
 using System;
 using ICities;
 
-namespace GSteigertDistricts
+namespace DistrictServiceLimit
 {
     public class GSteigertMod : IUserMod
     {

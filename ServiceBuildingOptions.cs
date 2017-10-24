@@ -5,7 +5,7 @@ using ICities;
 using ColossalFramework;
 using ColossalFramework.IO;
 
-namespace GSteigertDistricts
+namespace DistrictServiceLimit
 {
     public class ServiceBuildingOptions
     {
