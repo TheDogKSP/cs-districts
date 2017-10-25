@@ -6,12 +6,28 @@ namespace DistrictServiceLimit
 {
     internal static class DistrictChecker
     {
+
+        /// <summary>
+        /// Eventual handler of all service requests
+        /// </summary>
         private static bool IsTransferAllowed(Vector3 source, Vector3 destination,
             ushort buildingID, TransferManager.TransferReason reason, bool isResidentTransfer)
         {
             DistrictManager districtManager = Singleton<DistrictManager>.instance;
             byte srcDistrict = districtManager.GetDistrict(source);
             byte dstDistrict = districtManager.GetDistrict(destination);
+
+            if (srcDistrict != 0 && !IsActive(srcDistrict))
+            {
+                Utils.LogGeneral($"IsTransferAllowed: srcDistrict {srcDistrict} not active, setting to zero!");
+                srcDistrict = 0;
+            }
+
+            if (dstDistrict != 0 && !IsActive(dstDistrict))
+            {
+                Utils.LogGeneral($"IsTransferAllowed: dstDistrict {dstDistrict} not active, setting to zero!");
+                dstDistrict = 0;
+            }
 
             // check whether this transfer represents a resident going out to do something
             if (isResidentTransfer)
@@ -20,6 +36,7 @@ namespace DistrictServiceLimit
                 {
                     // resident going to a hospital or clinic
                     case TransferManager.TransferReason.Sick:
+                    case TransferManager.TransferReason.Sick2:
                         return Settings.RestrictCitizenHealthAccess ?
                             (dstDistrict == 0 || srcDistrict == dstDistrict) : true;
 
@@ -102,6 +119,10 @@ namespace DistrictServiceLimit
             }
         }
 
+
+        /// <summary>
+        /// Building Service requests wrapper
+        /// </summary>
         public static bool IsBuildingTransferAllowed(ushort buildingID, ref Building data,
             TransferManager.TransferReason reason, TransferManager.TransferOffer offer,
             bool summarizedLog = false)
@@ -133,10 +154,13 @@ namespace DistrictServiceLimit
                     + String.Format("\n - District: {0} -> {1}", srcDistrict, dstDistrict));
             }
 #endif
-
             return allowed;
         }
 
+
+        /// <summary>
+        /// Vehicle Service requests wrapper
+        /// </summary>
         public static bool IsVehicleTransferAllowed(ushort vehicleID, ref Vehicle data,
             TransferManager.TransferReason reason, TransferManager.TransferOffer offer)
         {
@@ -162,10 +186,13 @@ namespace DistrictServiceLimit
                 + String.Format("\n - Destination: building='{0}', citizen='{1}'", dstBuilding, dstCitizen)
                 + String.Format("\n - District: {0} -> {1}", srcDistrict, dstDistrict));
 #endif
-
             return allowed;
         }
 
+
+        /// <summary>
+        /// Citizen activity requests wrapper
+        /// </summary>
         public static bool IsCitizenTransferAllowed(uint citizenID, ref Citizen data,
             TransferManager.TransferReason reason, TransferManager.TransferOffer offer)
         {
@@ -190,18 +217,29 @@ namespace DistrictServiceLimit
                 + String.Format("\n - Destination: building='{0}', citizen='{1}'", dstBuilding, dstCitizen)
                 + String.Format("\n - District: {0} -> {1}", srcDistrict, dstDistrict));
 #endif
-
             return allowed;
         }
 
+
+        /// <summary>
+        /// get name of district by world position
+        /// </summary>
+        /// <param name="position"></param>
+        /// <returns></returns>
         private static string FindDistrictName(Vector3 position)
         {
             DistrictManager districtManager = Singleton<DistrictManager>.instance;
             byte districtId = districtManager.GetDistrict(position);
             string districtName = districtManager.GetDistrictName(districtId);
-            return (districtName == null ? "<undefined>" : districtName) + ":" + districtId;
+            return (districtName == null || districtName == "") ? ("<undefined>:"+districtId) : (districtName + ":"+districtId);
         }
 
+
+        /// <summary>
+        /// check if district is a legal and active district
+        /// </summary>
+        /// <param name="districtID"></param>
+        /// <returns></returns>
         public static bool IsActive(byte districtID)
         {
             if (districtID == 0)
@@ -217,5 +255,6 @@ namespace DistrictServiceLimit
 
             return true;
         }
+
     }
 }

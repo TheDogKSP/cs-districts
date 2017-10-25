@@ -10,7 +10,7 @@ namespace DistrictServiceLimit
 
         public void OnSettingsUI(UIHelperBase helper)
         {
-            UIHelperBase group1 = helper.AddGroup("Service dispatching");
+            UIHelperBase group1 = helper.AddGroup("Restrict Service dispatching");
             group1.AddSpace(10);
             group1.AddCheckbox("Service buildings will only dispatch vehicles to the current district"
                 + "\n(e.g.: garbage trucks, police cars, hearses, ambulances, etc)",
@@ -21,7 +21,7 @@ namespace DistrictServiceLimit
                 Settings.RestrictMaterialTransfer, RestrictMaterialTransferClicked);
             group1.AddSpace(10);
 
-            UIHelperBase group2 = helper.AddGroup("Direct citizen access");
+            UIHelperBase group2 = helper.AddGroup("Restrict Citizen access");
             group2.AddSpace(5);
             group2.AddCheckbox("Citizens will only attend educational buildings in the current district",
                 Settings.RestrictCitizenEducationalAccess, RestrictCitizenEducationalAccessClicked);
@@ -145,9 +145,17 @@ namespace DistrictServiceLimit
             ReplaceHelper.ReplaceBuildingAI<HelicopterDepotAI, HelicopterDepotAIMod>();
             ReplaceHelper.ReplaceVehicleAI<HelicopterAI, HelicopterAIMod>();
 
-            // replace the residents
-            ReplaceHelper.ReplacePersonAI<ResidentAI, ResidentAIMod>();
+            // replace the residents (only if options checked)
+            if (Settings.RestrictCitizenEducationalAccess ||
+                Settings.RestrictCitizenHealthAccess ||
+                Settings.RestrictCitizenParkAccess ||
+                Settings.RestrictCitizenShoppingAccess ||
+                Settings.RestrictCitizenWorkAccess)
+            {
+                ReplaceHelper.ReplacePersonAI<ResidentAI, ResidentAIMod>();
+            }
 
+            Utils.LogGeneral("District Service Limit installing panel...");
             DistrictSelectionPanel.Install();
 
             long duration = (DateTime.Now - then).Milliseconds;

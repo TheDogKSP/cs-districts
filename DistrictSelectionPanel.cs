@@ -73,7 +73,7 @@ namespace DistrictServiceLimit
         {
             base.Update();
             if (displayRequested)
-            {
+            {               
                 updateCount++;
                 if (updateCount > 0)
                 {
@@ -87,6 +87,7 @@ namespace DistrictServiceLimit
                         lastBuildingID = selectedBuildingID;
                         Show(selectedBuildingID);
                     }
+
                 }
             }
         }
@@ -109,7 +110,8 @@ namespace DistrictServiceLimit
             Building building = Singleton<BuildingManager>.instance.m_buildings.m_buffer[selectedBuildingID];
             byte selectedBuildingDistrictID = districtManager.GetDistrict(building.m_position);
 
-            for (int index = 1; index < 128; ++index)
+            int index;
+            for (index = 1; index < 128; ++index)
             {
                 if (index != selectedBuildingDistrictID && DistrictChecker.IsActive((byte)index))
                 {
@@ -119,6 +121,8 @@ namespace DistrictServiceLimit
             }
 
             fastList.DisplayAt(0);
+
+            //Utils.LogGeneral($"[DistrictSelectionPanel]: {fastList.rowsData.m_size} available Districts for building: ");
         }
 
         private void Show(ushort selectedBuildingID)
@@ -126,7 +130,7 @@ namespace DistrictServiceLimit
             if (!ServiceBuildingOptions.GetInstance().IsSupported(selectedBuildingID))
             {
                 Hide();
-                Utils.LogGeneral("[DistrictSelectionPanel] Won't show panel: building not supported");
+                Utils.LogGeneral($"[DistrictSelectionPanel] Won't show panel: building {selectedBuildingID} not supported");
                 return;
             }
 
@@ -135,7 +139,7 @@ namespace DistrictServiceLimit
             if (fastList.rowsData.m_size == 0)
             {
                 Hide();
-                Utils.LogGeneral("[DistrictSelectionPanel] Won't show panel: no data to display");
+                Utils.LogGeneral($"[DistrictSelectionPanel] Won't show panel: no data to display for building {selectedBuildingID}");
                 return;
             }
 
@@ -159,6 +163,8 @@ namespace DistrictServiceLimit
             {
                 displayRequested = true;
             }
+
+            //Utils.LogGeneral($"[DistrictSelectionPanel]: displayRequested={displayRequested}");
         }
 
         private void OnVisibilityChanged(UIComponent component, bool visible)
@@ -181,8 +187,7 @@ namespace DistrictServiceLimit
         {
             Root = new GameObject("DistrictSelectionPanelGO");
             Panel = Root.AddComponent<DistrictSelectionPanel>();
-
-            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, "[District Service Limit] " + "Root="+Root+ ", Panel="+Panel);
+            Utils.LogGeneral("[District Service Limit] " + "Root="+Root+ ", Panel="+Panel);
 
             //UIPanel servicePanel = UIView.Find<UIPanel>("(Library) CityServiceWorldInfoPanel");
             var servicePanel = GetPanel("(Library) CityServiceWorldInfoPanel");
@@ -191,19 +196,17 @@ namespace DistrictServiceLimit
                 throw new Exception("UIPanel not found (update broke the mod!): (Library) CityServiceWorldInfoPanel\nAvailable panels are:\n" +
                 string.Join("  \n", GetUIPanelNames()));
             }
+            Utils.LogGeneral("[District Service Limit] " + "servicePanel=" +servicePanel+ ", transform="+ servicePanel?.transform);
+            Utils.LogGeneral("[District Service Limit] All Panels: "+string.Join("  \n", GetUIPanelNames()));
 
-            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, "[District Service Limit] " + "servicePanel=" +servicePanel+ ", transform="+ servicePanel?.transform);
-
-            Panel.transform.parent = servicePanel?.transform;
+            Panel.transform.parent = servicePanel.transform;
             Panel.basePanel = servicePanel.gameObject.transform.GetComponentInChildren<CityServiceWorldInfoPanel>();
-
-            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, "[District Service Limit] " + "basePanel=" + Panel?.basePanel);
+            Utils.LogGeneral("[District Service Limit] " + "basePanel=" + Panel.basePanel);
 
             servicePanel.eventVisibilityChanged += Panel.OnVisibilityChanged;
             servicePanel.eventPositionChanged += Panel.OnPositionChanged;
 
-            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, "[District Service Limit] " + "Entering AdjustPosition()...");
-
+            Utils.LogGeneral("[District Service Limit] " + "AdjustPosition()...");
             AdjustPosition();
         }
 
@@ -211,7 +214,8 @@ namespace DistrictServiceLimit
         private static string[] GetUIPanelNames() => GetUIPanelInstances().Select(p => p.name).ToArray();
         private static UIPanel GetPanel(string pname)
         {
-             return GetUIPanelInstances().FirstOrDefault(p => p.name == pname);
+            //return GetUIPanelInstances().FirstOrDefault(p => p.name == pname);
+            return UIView.Find<UIPanel>(pname);
         }
 
 
@@ -219,6 +223,7 @@ namespace DistrictServiceLimit
         {
             if (Panel == null)
             {
+                Utils.LogGeneral("[District Service Limit] Panel is null!");
                 return;
             }
 
@@ -231,6 +236,8 @@ namespace DistrictServiceLimit
             {
                 Panel.position = new Vector3(servicePanel.width + 5, servicePanel.height);
             }
+
+            Utils.LogGeneral("[District Service Limit] position is: " + Panel.position);
         }
 
         public static void Uninstall()
@@ -247,6 +254,7 @@ namespace DistrictServiceLimit
             }
         }
     }
+
 
     class DistrictRow : UIPanel, IUIFastListRow
     {

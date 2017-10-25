@@ -137,8 +137,7 @@ namespace DistrictServiceLimit
                 return;
             }
 
-            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message,
-                "[District Service Limit] " + message);
+            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, "[DSL] " + DateTime.Now.ToString() + ": " + message);
         }
     }
 }
