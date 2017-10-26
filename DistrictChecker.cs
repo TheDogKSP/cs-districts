@@ -134,7 +134,7 @@ namespace DistrictServiceLimit
 
             //fix for services based on resident instead of building:
             if (offer.Building == 0 && offer.Citizen != 0)
-                dstBuilding = buildingManager.m_buildings.m_buffer[(int)citizenManager.m_citizens.m_buffer[offer.Citizen].m_homeBuilding];
+                dstBuilding = buildingManager.m_buildings.m_buffer[(int)citizenManager.m_citizens.m_buffer[offer.Citizen].GetBuildingByLocation()];
 
             string srcBuildingName = buildingManager.GetBuildingName(buildingID, InstanceID.Empty);
             string dstBuildingName = buildingManager.GetBuildingName(offer.Building, InstanceID.Empty);
@@ -178,7 +178,7 @@ namespace DistrictServiceLimit
 
             //fix for services based on resident instead of building:
             if (offer.Building == 0 && offer.Citizen != 0)
-                dstBuilding = buildingManager.m_buildings.m_buffer[(int)citizenManager.m_citizens.m_buffer[offer.Citizen].m_homeBuilding];
+                dstBuilding = buildingManager.m_buildings.m_buffer[(int)citizenManager.m_citizens.m_buffer[offer.Citizen].GetBuildingByLocation()];
 
             string srcBuildingName = buildingManager.GetBuildingName(buildingID, InstanceID.Empty);
             string dstBuildingName = buildingManager.GetBuildingName(offer.Building, InstanceID.Empty);
