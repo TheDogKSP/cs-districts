@@ -10,8 +10,7 @@ namespace DistrictServiceLimit
         /// <summary>
         /// Eventual handler of all service requests
         /// </summary>
-        private static bool IsTransferAllowed(Vector3 source, Vector3 destination,
-            ushort buildingID, TransferManager.TransferReason reason, bool isResidentTransfer)
+        private static bool IsTransferAllowed(Vector3 source, Vector3 destination, ushort buildingID, ushort destBuildingID, TransferManager.TransferReason reason, bool isResidentTransfer)
         {
             DistrictManager districtManager = Singleton<DistrictManager>.instance;
             byte srcDistrict = districtManager.GetDistrict(source);
@@ -107,7 +106,7 @@ namespace DistrictServiceLimit
                         return !Settings.RestrictMaterialTransfer ? true :
                             (dstDistrict == 0
                                 || srcDistrict == dstDistrict
-                                || opts.IsTargetCovered(buildingID, dstDistrict));
+                                || opts.IsTargetCovered(destBuildingID, srcDistrict));  //inverted logic: destination must cover source of move!
 
                     // ignore prisons
                     case TransferManager.TransferReason.CriminalMove:
@@ -139,7 +138,7 @@ namespace DistrictServiceLimit
             string srcDistrictName = FindDistrictName(srcBuilding.m_position);
             string dstDistrictName = FindDistrictName(dstBuilding.m_position);
 
-            bool allowed = DistrictChecker.IsTransferAllowed(data.m_position, dstBuilding.m_position, buildingID, reason, false);
+            bool allowed = DistrictChecker.IsTransferAllowed(data.m_position, dstBuilding.m_position, buildingID, offer.Building, reason, false);
 
 #if DEBUG
             if (summarizedLog)
@@ -179,7 +178,7 @@ namespace DistrictServiceLimit
             string srcDistrictName = FindDistrictName(srcBuilding.m_position);
             string dstDistrictName = FindDistrictName(dstBuilding.m_position);
 
-            bool allowed = DistrictChecker.IsTransferAllowed(srcBuilding.m_position, dstBuilding.m_position, buildingID, reason, false);
+            bool allowed = DistrictChecker.IsTransferAllowed(srcBuilding.m_position, dstBuilding.m_position, buildingID, offer.Building, reason, false);
 
 #if DEBUG
             Utils.LogVehicle("------------------------------------------------------------"
@@ -212,7 +211,7 @@ namespace DistrictServiceLimit
             string srcDistrictName = FindDistrictName(srcBuilding.m_position);
             string dstDistrictName = FindDistrictName(dstBuilding.m_position);
 
-            bool allowed = DistrictChecker.IsTransferAllowed(srcBuilding.m_position, dstBuilding.m_position, 0, reason, true);
+            bool allowed = DistrictChecker.IsTransferAllowed(srcBuilding.m_position, dstBuilding.m_position, buildingID, offer.Building, reason, true);
 
 #if DEBUG
             Utils.LogCitizen("------------------------------------------------------------"
