@@ -132,6 +132,10 @@ namespace DistrictServiceLimit
             Building srcBuilding = buildingManager.m_buildings.m_buffer[(int)buildingID];
             Building dstBuilding = buildingManager.m_buildings.m_buffer[(int)offer.Building];
 
+            //fix for services based on resident instead of building:
+            if (offer.Building == 0 && offer.Citizen != 0)
+                dstBuilding = buildingManager.m_buildings.m_buffer[(int)citizenManager.m_citizens.m_buffer[offer.Citizen].m_homeBuilding];
+
             string srcBuildingName = buildingManager.GetBuildingName(buildingID, InstanceID.Empty);
             string dstBuildingName = buildingManager.GetBuildingName(offer.Building, InstanceID.Empty);
             string dstCitizenName = citizenManager.GetCitizenName(offer.Citizen);
@@ -171,6 +175,10 @@ namespace DistrictServiceLimit
             ushort buildingID = data.m_sourceBuilding;
             Building srcBuilding = buildingManager.m_buildings.m_buffer[(int)buildingID];
             Building dstBuilding = buildingManager.m_buildings.m_buffer[(int)offer.Building];
+
+            //fix for services based on resident instead of building:
+            if (offer.Building == 0 && offer.Citizen != 0)
+                dstBuilding = buildingManager.m_buildings.m_buffer[(int)citizenManager.m_citizens.m_buffer[offer.Citizen].m_homeBuilding];
 
             string srcBuildingName = buildingManager.GetBuildingName(buildingID, InstanceID.Empty);
             string dstBuildingName = buildingManager.GetBuildingName(offer.Building, InstanceID.Empty);
