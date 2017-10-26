@@ -120,7 +120,8 @@ namespace DistrictServiceLimit
                    || service.Equals(ItemClass.Service.Garbage)
                    || service.Equals(ItemClass.Service.HealthCare)
                    || service.Equals(ItemClass.Service.PoliceDepartment)
-                   || service.Equals(ItemClass.Service.Road))
+                   || service.Equals(ItemClass.Service.Road)
+                   || (service.Equals(ItemClass.Service.PublicTransport) && building.Info.GetSubService().Equals(ItemClass.SubService.PublicTransportTaxi))) //allow Taxi
             {
                 DistrictManager districtManager = Singleton<DistrictManager>.instance;
                 byte districtID = districtManager.GetDistrict(building.m_position);

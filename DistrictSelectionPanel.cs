@@ -17,11 +17,12 @@ namespace DistrictServiceLimit
 {
     class DistrictSelectionPanel : UIPanel
     {
+        private const string SERVICE_PANEL_NAME = "(Library) CityServiceWorldInfoPanel";
         internal static string ALL_DISTRICTS = "All districts";
         internal static int WIDTH = 220;
 
+        private static UIPanel servicePanel;
         private CityServiceWorldInfoPanel basePanel;
-        private FieldInfo instanceIdFieldInfo;
         private UILabel title;
         private UIFastList fastList;
         internal ushort lastBuildingID;
@@ -94,11 +95,14 @@ namespace DistrictServiceLimit
 
         private ushort RetrieveBuildingID()
         {
+            /*
             if (instanceIdFieldInfo == null)
             {
                 instanceIdFieldInfo = basePanel.GetType().GetField("m_InstanceID", BindingFlags.NonPublic | BindingFlags.Instance);
             }
             return ((InstanceID)instanceIdFieldInfo.GetValue(basePanel)).Building;
+            */
+            return WorldInfoPanel.GetCurrentInstanceID().Building;
         }
 
         private void RefreshData(ushort selectedBuildingID)
@@ -176,6 +180,7 @@ namespace DistrictServiceLimit
         {
             bool visible = basePanel.component.isVisible;
             RefreshVisibility(visible);
+            AdjustPosition();
         }
 
         // Static members
@@ -190,23 +195,21 @@ namespace DistrictServiceLimit
             Utils.LogGeneral("[District Service Limit] " + "Root="+Root+ ", Panel="+Panel);
 
             //UIPanel servicePanel = UIView.Find<UIPanel>("(Library) CityServiceWorldInfoPanel");
-            var servicePanel = GetPanel("(Library) CityServiceWorldInfoPanel");
+            servicePanel = GetPanel(SERVICE_PANEL_NAME);
             if (servicePanel == null)
             {
-                throw new Exception("UIPanel not found (update broke the mod!): (Library) CityServiceWorldInfoPanel\nAvailable panels are:\n" +
+                throw new Exception("UIPanel not found (update broke the mod!): "+ SERVICE_PANEL_NAME + ". \nAvailable panels are:\n" +
                 string.Join("  \n", GetUIPanelNames()));
             }
-            Utils.LogGeneral("[District Service Limit] " + "servicePanel=" +servicePanel+ ", transform="+ servicePanel?.transform);
-            Utils.LogGeneral("[District Service Limit] All Panels: "+string.Join("  \n", GetUIPanelNames()));
+            Utils.LogGeneral("[District Service Limit] " + "servicePanel=" +servicePanel+ ", transform="+ servicePanel.transform);
 
+            Panel.basePanel = servicePanel.gameObject.GetComponent<CityServiceWorldInfoPanel>();
             Panel.transform.parent = servicePanel.transform;
-            Panel.basePanel = servicePanel.gameObject.transform.GetComponentInChildren<CityServiceWorldInfoPanel>();
             Utils.LogGeneral("[District Service Limit] " + "basePanel=" + Panel.basePanel);
 
             servicePanel.eventVisibilityChanged += Panel.OnVisibilityChanged;
             servicePanel.eventPositionChanged += Panel.OnPositionChanged;
 
-            Utils.LogGeneral("[District Service Limit] " + "AdjustPosition()...");
             AdjustPosition();
         }
 
@@ -227,7 +230,6 @@ namespace DistrictServiceLimit
                 return;
             }
 
-            UIPanel servicePanel = GetPanel("(Library) CityServiceWorldInfoPanel");
             if (Settings.DisplayBuildingOptionsOnLeftSide)
             {
                 Panel.position = new Vector3(-WIDTH - 5, servicePanel.height);
@@ -237,15 +239,17 @@ namespace DistrictServiceLimit
                 Panel.position = new Vector3(servicePanel.width + 5, servicePanel.height);
             }
 
-            Utils.LogGeneral("[District Service Limit] position is: " + Panel.position);
+            //Utils.LogGeneral("[District Service Limit] position is: " + Panel.position);
+            //Utils.LogGeneral("[District Service Limit] basePanel position is: " + Panel.transform.parent.position);
         }
+
 
         public static void Uninstall()
         {
             if (Root != null)
             {
                 //UIPanel servicePanel = UIView.Find<UIPanel>("(Library) CityServiceWorldInfoPanel");
-                UIPanel servicePanel = GetPanel("(Library) CityServiceWorldInfoPanel");
+                UIPanel servicePanel = GetPanel(SERVICE_PANEL_NAME);
                 servicePanel.eventVisibilityChanged -= Panel.OnVisibilityChanged;
                 servicePanel.eventPositionChanged -= Panel.OnPositionChanged;
                 GameObject.Destroy(Root);

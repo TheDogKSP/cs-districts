@@ -13,7 +13,8 @@ namespace DistrictServiceLimit
             UIHelperBase group1 = helper.AddGroup("Restrict Service dispatching");
             group1.AddSpace(10);
             group1.AddCheckbox("Service buildings will only dispatch vehicles to the current district"
-                + "\n(e.g.: garbage trucks, police cars, hearses, ambulances, etc)",
+                + "\n(e.g.: garbage trucks, police cars, hearses, ambulances, etc)"
+                + "\n(does not affect public transport, except Taxis!)",
                 Settings.RestrictServiceDispatching, RestrictServiceDispatchingClicked);
             group1.AddSpace(20);
             group1.AddCheckbox("Materials will only be transfered to other buildings in the current district"
@@ -21,7 +22,7 @@ namespace DistrictServiceLimit
                 Settings.RestrictMaterialTransfer, RestrictMaterialTransferClicked);
             group1.AddSpace(10);
 
-            UIHelperBase group2 = helper.AddGroup("Restrict Citizen access");
+            UIHelperBase group2 = helper.AddGroup("Restrict Citizen access\n(This is an evil restriction of personal freedom!)");
             group2.AddSpace(5);
             group2.AddCheckbox("Citizens will only attend educational buildings in the current district",
                 Settings.RestrictCitizenEducationalAccess, RestrictCitizenEducationalAccessClicked);
@@ -80,7 +81,6 @@ namespace DistrictServiceLimit
         private void DisplayBuildingOptionsOnLeftSideClicked(bool isChecked)
         {
             Settings.DisplayBuildingOptionsOnLeftSide = isChecked;
-            DistrictSelectionPanel.AdjustPosition();
         }
     }
 
@@ -153,6 +153,9 @@ namespace DistrictServiceLimit
                 Settings.RestrictCitizenWorkAccess)
             {
                 ReplaceHelper.ReplacePersonAI<ResidentAI, ResidentAIMod>();
+            } else
+            {
+                Utils.LogGeneral("Skipping resident AI replacements.");
             }
 
             Utils.LogGeneral("District Service Limit installing panel...");

@@ -11,7 +11,7 @@ namespace DistrictServiceLimit
         public static void ReplaceBuildingAI<TOldAI, TNewAI>()
             where TOldAI : BuildingAI where TNewAI : BuildingAI
         {
-            Utils.LogGeneral(String.Format(" - Replacing {0} with {1}", typeof(TOldAI), typeof(TNewAI)));
+            Utils.LogGeneral(String.Format("Replacing {0} with {1}", typeof(TOldAI), typeof(TNewAI)));
 
             ForEachPrefab((BuildingInfo info) =>
             {
@@ -21,13 +21,13 @@ namespace DistrictServiceLimit
                 var newAI = info.gameObject.GetComponent<TNewAI>();
                 if (newAI != null && newAI.GetType().Equals(typeof(TNewAI))) return;
 
-                if (info.name == "Bus Depot" || info.name == "Tram Depot" || isMetroDepot(info))    //added TheDog for MOM compatibility
+                if (isPublicTransportDepot(info))    //added TheDog for MOM compatibility
                 {
                     Utils.LogGeneral(String.Format(" --> Skipping: {0}", info.name));
                     return;
                 }
 
-                Utils.LogGeneral(String.Format(" --> Swapping: {0}", info.name));
+                Utils.LogGeneral(String.Format(" - Swapping: {0}", info.name));
                 newAI = info.gameObject.AddComponent<TNewAI>();
                 ShallowCopyTo(oldAI, newAI);
 
@@ -39,9 +39,11 @@ namespace DistrictServiceLimit
         }
 
         //added TheDog for MOM compatibility
-        private static bool isMetroDepot(BuildingInfo info)
+        private static bool isPublicTransportDepot(BuildingInfo info)
         {
-            return info?.m_class != null && info.m_buildingAI is DepotAI && info.m_class.m_service == ItemClass.Service.PublicTransport && info.m_class.m_subService == ItemClass.SubService.PublicTransportMetro;
+            // prevent replacing all except Taxi!
+            return info?.m_class != null && info.m_buildingAI is DepotAI && info.m_class.m_service == ItemClass.Service.PublicTransport && 
+                (info.m_class.m_subService != ItemClass.SubService.PublicTransportTaxi);
         }
 
         public static void ReplaceVehicleAI<TOldAI, TNewAI>()
