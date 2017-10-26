@@ -413,8 +413,8 @@ namespace DistrictServiceLimit
                     if (DistrictChecker.IsBuildingTransferAllowed(otherBuildingID, ref otherBuilding, material, offer, true))
                     {
                         // let other building handle the offer
-                        otherBuildingAI.StartTransfer(otherBuildingID, ref otherBuilding, material, offer);
                         Utils.LogBuilding(" - delegation success, starting transfer (origin delegated)");
+                        otherBuildingAI.StartTransfer(otherBuildingID, ref otherBuilding, material, offer);
                         return true;
                     }
                 }
@@ -426,14 +426,14 @@ namespace DistrictServiceLimit
                     if (DistrictChecker.IsBuildingTransferAllowed(buildingID, ref data, material, offer, true))
                     {
                         // change the target to other building
-                        data.Info.m_buildingAI.StartTransfer(buildingID, ref data, material, offer);
                         Utils.LogBuilding(" - delegation success, starting transfer (target changed)");
+                        data.Info.m_buildingAI.StartTransfer(buildingID, ref data, material, offer);
                         return true;
                     }
                 }
             }
 
-            Utils.LogBuilding(" - Delegation finally failed, request NOT handled!");
+            Utils.LogBuilding(" - delegation finally failed, request NOT handled!");
 
             return false;
         }
