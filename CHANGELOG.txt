@@ -1,0 +1,6 @@
+
+-- v3.0, build 3.0.6508, date 2017-10-26 --
+* made functional under C:S 1.9 Green Cities
+* fixed all service dispatch problems (garbage, health, ...)
+* compatibility with subbuiltabs enabler, and other mods that modify the service panel
+
