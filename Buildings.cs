@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using ColossalFramework;
 
-namespace GSteigertDistricts
+namespace DistrictServiceLimit
 {
     public class HelicopterDepotAIMod : HelicopterDepotAI
     {
@@ -19,13 +19,13 @@ namespace GSteigertDistricts
             else if (DistrictChecker.IsBuildingTransferAllowed(buildingID, ref data, material, offer))
             {
                 base.StartTransfer(buildingID, ref data, material, offer);
-                triggered = true;
+                //triggered = true;
             }
             else
             {
                 if (BuildingHelper.delegateToAnotherBuilding(buildingID, ref data, material, offer))
                 {
-                    triggered = true;
+                    //triggered = true;
                 }
             }
         }
@@ -51,13 +51,13 @@ namespace GSteigertDistricts
             else if (DistrictChecker.IsBuildingTransferAllowed(buildingID, ref data, material, offer))
             {
                 base.StartTransfer(buildingID, ref data, material, offer);
-                triggered = true;
+                //triggered = true;
             }
             else
             {
                 if (BuildingHelper.delegateToAnotherBuilding(buildingID, ref data, material, offer))
                 {
-                    triggered = true;
+                    //triggered = true;
                 }
             }
         }
@@ -83,13 +83,13 @@ namespace GSteigertDistricts
             else if (DistrictChecker.IsBuildingTransferAllowed(buildingID, ref data, material, offer))
             {
                 base.StartTransfer(buildingID, ref data, material, offer);
-                triggered = true;
+                //triggered = true;
             }
             else
             {
                 if (BuildingHelper.delegateToAnotherBuilding(buildingID, ref data, material, offer))
                 {
-                    triggered = true;
+                    //triggered = true;
                 }
             }
         }
@@ -115,13 +115,13 @@ namespace GSteigertDistricts
             else if (DistrictChecker.IsBuildingTransferAllowed(buildingID, ref data, material, offer))
             {
                 base.StartTransfer(buildingID, ref data, material, offer);
-                triggered = true;
+                //triggered = true;
             }
             else
             {
                 if (BuildingHelper.delegateToAnotherBuilding(buildingID, ref data, material, offer))
                 {
-                    triggered = true;
+                    //triggered = true;
                 }
             }
         }
@@ -147,13 +147,13 @@ namespace GSteigertDistricts
             else if (DistrictChecker.IsBuildingTransferAllowed(buildingID, ref data, material, offer))
             {
                 base.StartTransfer(buildingID, ref data, material, offer);
-                triggered = true;
+                //triggered = true;
             }
             else
             {
                 if (BuildingHelper.delegateToAnotherBuilding(buildingID, ref data, material, offer))
                 {
-                    triggered = true;
+                    //triggered = true;
                 }
             }
         }
@@ -179,13 +179,13 @@ namespace GSteigertDistricts
             else if (DistrictChecker.IsBuildingTransferAllowed(buildingID, ref data, material, offer))
             {
                 base.StartTransfer(buildingID, ref data, material, offer);
-                triggered = true;
+                //triggered = true;
             }
             else
             {
                 if (BuildingHelper.delegateToAnotherBuilding(buildingID, ref data, material, offer))
                 {
-                    triggered = true;
+                    //triggered = true;
                 }
             }
         }
@@ -211,13 +211,13 @@ namespace GSteigertDistricts
             else if (DistrictChecker.IsBuildingTransferAllowed(buildingID, ref data, material, offer))
             {
                 base.StartTransfer(buildingID, ref data, material, offer);
-                triggered = true;
+                //triggered = true;
             }
             else
             {
                 if (BuildingHelper.delegateToAnotherBuilding(buildingID, ref data, material, offer))
                 {
-                    triggered = true;
+                    //triggered = true;
                 }
             }
         }
@@ -243,13 +243,13 @@ namespace GSteigertDistricts
             else if (DistrictChecker.IsBuildingTransferAllowed(buildingID, ref data, material, offer))
             {
                 base.StartTransfer(buildingID, ref data, material, offer);
-                triggered = true;
+                //triggered = true;
             }
             else
             {
                 if (BuildingHelper.delegateToAnotherBuilding(buildingID, ref data, material, offer))
                 {
-                    triggered = true;
+                    //triggered = true;
                 }
             }
         }
@@ -275,13 +275,13 @@ namespace GSteigertDistricts
             else if (DistrictChecker.IsBuildingTransferAllowed(buildingID, ref data, material, offer))
             {
                 base.StartTransfer(buildingID, ref data, material, offer);
-                triggered = true;
+                //triggered = true;
             }
             else
             {
                 if (BuildingHelper.delegateToAnotherBuilding(buildingID, ref data, material, offer))
                 {
-                    triggered = true;
+                    //triggered = true;
                 }
             }
         }
@@ -307,13 +307,13 @@ namespace GSteigertDistricts
             else if (DistrictChecker.IsBuildingTransferAllowed(buildingID, ref data, material, offer))
             {
                 base.StartTransfer(buildingID, ref data, material, offer);
-                triggered = true;
+                //triggered = true;
             }
             else
             {
                 if (BuildingHelper.delegateToAnotherBuilding(buildingID, ref data, material, offer))
                 {
-                    triggered = true;
+                    //triggered = true;
                 }
             }
         }
@@ -339,13 +339,13 @@ namespace GSteigertDistricts
             else if (DistrictChecker.IsBuildingTransferAllowed(buildingID, ref data, material, offer))
             {
                 base.StartTransfer(buildingID, ref data, material, offer);
-                triggered = true;
+                //triggered = true;
             }
             else
             {
                 if (BuildingHelper.delegateToAnotherBuilding(buildingID, ref data, material, offer))
                 {
-                    triggered = true;
+                    //triggered = true;
                 }
             }
         }
@@ -357,6 +357,10 @@ namespace GSteigertDistricts
         }
     }
 
+
+    /// <summary>
+    /// Help functions
+    /// </summary>
     public static class BuildingHelper
     {
         /**
@@ -366,9 +370,7 @@ namespace GSteigertDistricts
         internal static bool delegateToAnotherBuilding(ushort buildingID, ref Building data,
             TransferManager.TransferReason material, TransferManager.TransferOffer offer)
         {
-#if DEBUG
             Utils.LogBuilding(" - Searching another building to delegate");
-#endif
 
             Type aiType = data.Info.m_buildingAI.GetType().BaseType;
             BuildingManager buildingManager = Singleton<BuildingManager>.instance;
@@ -411,6 +413,7 @@ namespace GSteigertDistricts
                     if (DistrictChecker.IsBuildingTransferAllowed(otherBuildingID, ref otherBuilding, material, offer, true))
                     {
                         // let other building handle the offer
+                        Utils.LogBuilding(" - delegation success, starting transfer (origin delegated)");
                         otherBuildingAI.StartTransfer(otherBuildingID, ref otherBuilding, material, offer);
                         return true;
                     }
@@ -423,14 +426,18 @@ namespace GSteigertDistricts
                     if (DistrictChecker.IsBuildingTransferAllowed(buildingID, ref data, material, offer, true))
                     {
                         // change the target to other building
+                        Utils.LogBuilding(" - delegation success, starting transfer (target changed)");
                         data.Info.m_buildingAI.StartTransfer(buildingID, ref data, material, offer);
                         return true;
                     }
                 }
             }
 
+            Utils.LogBuilding(" - delegation finally failed, request NOT handled!");
+
             return false;
         }
+
 
         internal static bool hasSpareVehicles(ushort buildingID, ref Building data, BuildingAI buildingAI)
         {
@@ -441,10 +448,6 @@ namespace GSteigertDistricts
                 return false;
             }
 
-#if DEBUG
-            CODebug.Log(LogChannel.Modding, "DISTRICTS: hasspareVehicles: data="+data.ToString()+" // AI="+buildingAI.ToString()+" // stats=" + stats + " // lastIndexOf=" + stats.LastIndexOf(':'));
-#endif
-
             stats = stats.Substring(stats.LastIndexOf(':') + 2);
             Match match = new Regex(@"(\d+)\D+(\d+)").Match(stats);
             if (match.Success)
@@ -452,10 +455,10 @@ namespace GSteigertDistricts
                 int vehiclesInUse = int.Parse(match.Groups[1].Value);
                 int vehiclesAvailable = int.Parse(match.Groups[2].Value);
                 BuildingManager buildingManager = Singleton<BuildingManager>.instance;
-#if DEBUG
+
                 string buildingName = buildingManager.GetBuildingName(buildingID, InstanceID.Empty);
-                Utils.LogBuilding(String.Format("   - {0} - Capacity check: {1}/{2}", buildingName, vehiclesInUse, vehiclesAvailable));
-#endif
+                Utils.LogBuilding(String.Format("   - {0} - Capacity check: {1}/{2}, result: {3}", buildingName, vehiclesInUse, vehiclesAvailable, (vehiclesInUse < vehiclesAvailable)));
+
                 return (vehiclesInUse < vehiclesAvailable);
             }
             else

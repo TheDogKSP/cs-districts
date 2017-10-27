@@ -5,8 +5,9 @@ using ICities;
 using ColossalFramework;
 using ColossalFramework.IO;
 
-namespace GSteigertDistricts
+namespace DistrictServiceLimit
 {
+
     public class ServiceBuildingOptions
     {
         private static ServiceBuildingOptions Instance;
@@ -20,22 +21,21 @@ namespace GSteigertDistricts
             return Instance;
         }
 
+        /// <summary>
+        /// Lookup for all service buildings with selected service options
+        /// </summary>
         private Dictionary<ushort, ServiceBuildingData> m_serviceBuildingInfos;
+
 
         public ServiceBuildingOptions()
         {
-            m_serviceBuildingInfos = new Dictionary<ushort, ServiceBuildingData>();
+            m_serviceBuildingInfos = new Dictionary<ushort, ServiceBuildingData>(100);
         }
 
         public bool IsTargetCovered(ushort buildingID, byte targetDistrictID)
         {
-            if (DistrictChecker.IsActive(targetDistrictID))
-            {
-                ServiceBuildingData data = GetData(buildingID);
-                return (data == null ? false :
-                    (data.AreAllDistrictsServed() || data.IsAdditionalTarget(targetDistrictID)));
-            }
-            return false;
+            ServiceBuildingData data = GetData(buildingID);
+            return (data == null ? false : (data.AreAllDistrictsServed() || data.IsAdditionalTarget(targetDistrictID)));
         }
 
         public bool IsAdditionalTarget(ushort buildingID, byte targetDistrictID)
@@ -74,7 +74,7 @@ namespace GSteigertDistricts
             // must be performed before anything else
             if (!IsSupported(buildingID))
             {
-                m_serviceBuildingInfos.Remove(buildingID);
+                OnBuildingRemoved(buildingID);
                 return null;
             }
 
@@ -120,10 +120,14 @@ namespace GSteigertDistricts
                    || service.Equals(ItemClass.Service.Garbage)
                    || service.Equals(ItemClass.Service.HealthCare)
                    || service.Equals(ItemClass.Service.PoliceDepartment)
-                   || service.Equals(ItemClass.Service.Road))
+                   || service.Equals(ItemClass.Service.Road)
+                   || (service.Equals(ItemClass.Service.PublicTransport) && building.Info.GetSubService().Equals(ItemClass.SubService.PublicTransportTaxi))) //allow Taxi
             {
                 DistrictManager districtManager = Singleton<DistrictManager>.instance;
                 byte districtID = districtManager.GetDistrict(building.m_position);
+
+                Utils.LogGeneral($"Checking buildingID {buildingID}, District {districtID}:'{districtManager.GetDistrictName(districtID)}' active... {DistrictChecker.IsActive(districtID)}");
+
                 return DistrictChecker.IsActive(districtID);
             }
             return false;
@@ -140,11 +144,28 @@ namespace GSteigertDistricts
         }
     }
 
+
+    /// <summary>
+    /// Monitoring Buildings
+    /// </summary>
+    public class BuildingWatcher : BuildingExtensionBase
+    {
+        public override void OnBuildingReleased(ushort buildingID)
+        {
+            ServiceBuildingOptions.GetInstance().OnBuildingRemoved(buildingID);
+        }
+    }
+
+
+    /// <summary>
+    /// Data Persistence
+    /// </summary>
     public class ServiceBuildingData : IDataContainer
     {
         internal ushort buildingID;
-        private List<byte> additionalTargets;
         private bool allDistrictsServed;
+        private List<byte> additionalTargets;
+
 
         public ServiceBuildingData()
         {
@@ -188,31 +209,24 @@ namespace GSteigertDistricts
 
         public void Serialize(DataSerializer serializer)
         {
-            GetAdditionalTargets().RemoveAll(id => !DistrictChecker.IsActive(id));
-            if (serializer.version >= 1)
+            if (serializer.version >= 3)
             {
                 serializer.WriteInt32(buildingID);
-                serializer.WriteByteArray(GetAdditionalTargets().ToArray());
-            }
-            if (serializer.version >= 2)
-            {
                 serializer.WriteBool(AreAllDistrictsServed());
+                serializer.WriteByteArray(GetAdditionalTargets().ToArray());
             }
         }
 
         public void Deserialize(DataSerializer serializer)
         {
-            if (serializer.version >= 1)
+            if (serializer.version >= 3)
             {
                 buildingID = (ushort)serializer.ReadInt32();
+                SetAllDistrictsServed(serializer.ReadBool());
                 foreach (byte districtID in serializer.ReadByteArray())
                 {
                     GetAdditionalTargets().Add(districtID);
                 }
-            }
-            if (serializer.version >= 2)
-            {
-                SetAllDistrictsServed(serializer.ReadBool());
             }
         }
 
@@ -221,18 +235,14 @@ namespace GSteigertDistricts
         }
     }
 
-    public class BuildingWatcher : BuildingExtensionBase
-    {
-        public override void OnBuildingReleased(ushort buildingID)
-        {
-            ServiceBuildingOptions.GetInstance().OnBuildingRemoved(buildingID);
-        }
-    }
 
+    /// <summary>
+    /// Persistance handling
+    /// </summary>
     public class ServiceBuildingDataLoader : SerializableDataExtensionBase
     {
-        private const uint VERSION = 2;
-        private const string KEY = "GSteigertDistricts.savedata";
+        private const uint VERSION = 3;
+        private const string KEY = "DISTRICTSERVICELIMIT";
 
         public override void OnLoadData()
         {
@@ -256,6 +266,8 @@ namespace GSteigertDistricts
                     ServiceBuildingOptions.GetInstance().SetData(data.buildingID, data);
                 }
             }
+
+            Utils.LogGeneral($"DSL data loaded (Size in bytes: {bytes.Length})");
 #if RELEASE
             } catch (Exception ignored) { }
 #endif
@@ -284,6 +296,7 @@ namespace GSteigertDistricts
             }
 
             serializableDataManager.SaveData(KEY, bytes);
+            Utils.LogGeneral($"DSL data saved (Size in bytes: {bytes.Length})");
 #if RELEASE
             } catch (Exception ignored) { }
 #endif

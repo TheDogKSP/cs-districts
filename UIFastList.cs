@@ -5,7 +5,7 @@ using System.Text;
 using UnityEngine;
 using ColossalFramework.UI;
 
-namespace GSteigertDistricts
+namespace DistrictServiceLimit
 {
     public interface IUIFastListRow
     {

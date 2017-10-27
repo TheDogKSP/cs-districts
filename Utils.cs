@@ -5,7 +5,7 @@ using System.Threading;
 using ColossalFramework.IO;
 using ColossalFramework.Plugins;
 
-namespace GSteigertDistricts
+namespace DistrictServiceLimit
 {
     internal static class Utils
     {
@@ -137,8 +137,7 @@ namespace GSteigertDistricts
                 return;
             }
 
-            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message,
-                "[District Service Limit] " + message);
+            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, "[DSL] " + DateTime.Now.ToString() + ": " + message);
         }
     }
 }

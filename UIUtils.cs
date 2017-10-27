@@ -2,7 +2,7 @@
 using UnityEngine;
 using ColossalFramework.UI;
 
-namespace GSteigertDistricts
+namespace DistrictServiceLimit
 {
     public class UIUtils
     {

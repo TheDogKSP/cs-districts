@@ -1,10 +1,12 @@
-# District Service Limit Mod
+# District Service Limit Mod 3.0
+
+-continued and updated for C:S 1.9 (green cities) by TheDogKSP-
+
 
 ## Overview
 
-This mod allows city mayors playing `Cities Skylines` to restrict the dispatching of service vehicles to the current district only. The full explanation can be found at the mod's [Steam workshop page](http://steamcommunity.com/sharedfiles/filedetails/?id=649522495).
-
-![Overview](etc/ExampleImage-Districts.jpg)
+Allows restricting service building (fire, police, health care, taxi) to selectable districts.
+All buildings not within districts will continue to always serve the whole city.
 
 ## Technical notes
 
@@ -13,3 +15,5 @@ This mod is implemented in C# using the Colossal Order API and replaces the AI o
 ## Special thanks
 
 SamsamTS, for sharing such a nice UI controls to be used in the mod.
+gsteigert, for the orignal mod.
+

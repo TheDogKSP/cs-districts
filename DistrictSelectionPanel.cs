@@ -13,15 +13,16 @@ using ColossalFramework.Globalization;
 using UnityEngine;
 using ColossalFramework.Plugins;
 
-namespace GSteigertDistricts
+namespace DistrictServiceLimit
 {
     class DistrictSelectionPanel : UIPanel
     {
+        private const string SERVICE_PANEL_NAME = "(Library) CityServiceWorldInfoPanel";
         internal static string ALL_DISTRICTS = "All districts";
         internal static int WIDTH = 220;
 
+        private static UIPanel servicePanel;
         private CityServiceWorldInfoPanel basePanel;
-        private FieldInfo instanceIdFieldInfo;
         private UILabel title;
         private UIFastList fastList;
         internal ushort lastBuildingID;
@@ -73,7 +74,7 @@ namespace GSteigertDistricts
         {
             base.Update();
             if (displayRequested)
-            {
+            {               
                 updateCount++;
                 if (updateCount > 0)
                 {
@@ -87,17 +88,21 @@ namespace GSteigertDistricts
                         lastBuildingID = selectedBuildingID;
                         Show(selectedBuildingID);
                     }
+
                 }
             }
         }
 
         private ushort RetrieveBuildingID()
         {
+            /*
             if (instanceIdFieldInfo == null)
             {
                 instanceIdFieldInfo = basePanel.GetType().GetField("m_InstanceID", BindingFlags.NonPublic | BindingFlags.Instance);
             }
             return ((InstanceID)instanceIdFieldInfo.GetValue(basePanel)).Building;
+            */
+            return WorldInfoPanel.GetCurrentInstanceID().Building;
         }
 
         private void RefreshData(ushort selectedBuildingID)
@@ -109,7 +114,8 @@ namespace GSteigertDistricts
             Building building = Singleton<BuildingManager>.instance.m_buildings.m_buffer[selectedBuildingID];
             byte selectedBuildingDistrictID = districtManager.GetDistrict(building.m_position);
 
-            for (int index = 1; index < 128; ++index)
+            int index;
+            for (index = 1; index < 128; ++index)
             {
                 if (index != selectedBuildingDistrictID && DistrictChecker.IsActive((byte)index))
                 {
@@ -119,6 +125,8 @@ namespace GSteigertDistricts
             }
 
             fastList.DisplayAt(0);
+
+            //Utils.LogGeneral($"[DistrictSelectionPanel]: {fastList.rowsData.m_size} available Districts for building: ");
         }
 
         private void Show(ushort selectedBuildingID)
@@ -126,7 +134,7 @@ namespace GSteigertDistricts
             if (!ServiceBuildingOptions.GetInstance().IsSupported(selectedBuildingID))
             {
                 Hide();
-                Utils.LogGeneral("[DistrictSelectionPanel] Won't show panel: building not supported");
+                Utils.LogGeneral($"[DistrictSelectionPanel] Won't show panel: building {selectedBuildingID} not supported");
                 return;
             }
 
@@ -135,7 +143,7 @@ namespace GSteigertDistricts
             if (fastList.rowsData.m_size == 0)
             {
                 Hide();
-                Utils.LogGeneral("[DistrictSelectionPanel] Won't show panel: no data to display");
+                Utils.LogGeneral($"[DistrictSelectionPanel] Won't show panel: no data to display for building {selectedBuildingID}");
                 return;
             }
 
@@ -159,6 +167,8 @@ namespace GSteigertDistricts
             {
                 displayRequested = true;
             }
+
+            //Utils.LogGeneral($"[DistrictSelectionPanel]: displayRequested={displayRequested}");
         }
 
         private void OnVisibilityChanged(UIComponent component, bool visible)
@@ -170,6 +180,7 @@ namespace GSteigertDistricts
         {
             bool visible = basePanel.component.isVisible;
             RefreshVisibility(visible);
+            AdjustPosition();
         }
 
         // Static members
@@ -181,28 +192,23 @@ namespace GSteigertDistricts
         {
             Root = new GameObject("DistrictSelectionPanelGO");
             Panel = Root.AddComponent<DistrictSelectionPanel>();
-
-            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, "[District Service Limit] " + "Root="+Root+ ", Panel="+Panel);
+            Utils.LogGeneral("[District Service Limit] " + "Root="+Root+ ", Panel="+Panel);
 
             //UIPanel servicePanel = UIView.Find<UIPanel>("(Library) CityServiceWorldInfoPanel");
-            var servicePanel = GetPanel("(Library) CityServiceWorldInfoPanel");
+            servicePanel = GetPanel(SERVICE_PANEL_NAME);
             if (servicePanel == null)
             {
-                throw new Exception("UIPanel not found (update broke the mod!): (Library) CityServiceWorldInfoPanel\nAvailable panels are:\n" +
+                throw new Exception("UIPanel not found (update broke the mod!): "+ SERVICE_PANEL_NAME + ". \nAvailable panels are:\n" +
                 string.Join("  \n", GetUIPanelNames()));
             }
+            Utils.LogGeneral("[District Service Limit] " + "servicePanel=" +servicePanel+ ", transform="+ servicePanel.transform);
 
-            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, "[District Service Limit] " + "servicePanel=" +servicePanel+ ", transform="+ servicePanel?.transform);
-
-            Panel.transform.parent = servicePanel?.transform;
-            Panel.basePanel = servicePanel.gameObject.transform.GetComponentInChildren<CityServiceWorldInfoPanel>();
-
-            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, "[District Service Limit] " + "basePanel=" + Panel?.basePanel);
+            Panel.basePanel = servicePanel.gameObject.GetComponent<CityServiceWorldInfoPanel>();
+            Panel.transform.parent = servicePanel.transform;
+            Utils.LogGeneral("[District Service Limit] " + "basePanel=" + Panel.basePanel);
 
             servicePanel.eventVisibilityChanged += Panel.OnVisibilityChanged;
             servicePanel.eventPositionChanged += Panel.OnPositionChanged;
-
-            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, "[District Service Limit] " + "Entering AdjustPosition()...");
 
             AdjustPosition();
         }
@@ -211,7 +217,8 @@ namespace GSteigertDistricts
         private static string[] GetUIPanelNames() => GetUIPanelInstances().Select(p => p.name).ToArray();
         private static UIPanel GetPanel(string pname)
         {
-             return GetUIPanelInstances().FirstOrDefault(p => p.name == pname);
+            //return GetUIPanelInstances().FirstOrDefault(p => p.name == pname);
+            return UIView.Find<UIPanel>(pname);
         }
 
 
@@ -219,10 +226,10 @@ namespace GSteigertDistricts
         {
             if (Panel == null)
             {
+                Utils.LogGeneral("[District Service Limit] Panel is null!");
                 return;
             }
 
-            UIPanel servicePanel = GetPanel("(Library) CityServiceWorldInfoPanel");
             if (Settings.DisplayBuildingOptionsOnLeftSide)
             {
                 Panel.position = new Vector3(-WIDTH - 5, servicePanel.height);
@@ -231,14 +238,18 @@ namespace GSteigertDistricts
             {
                 Panel.position = new Vector3(servicePanel.width + 5, servicePanel.height);
             }
+
+            //Utils.LogGeneral("[District Service Limit] position is: " + Panel.position);
+            //Utils.LogGeneral("[District Service Limit] basePanel position is: " + Panel.transform.parent.position);
         }
+
 
         public static void Uninstall()
         {
             if (Root != null)
             {
                 //UIPanel servicePanel = UIView.Find<UIPanel>("(Library) CityServiceWorldInfoPanel");
-                UIPanel servicePanel = GetPanel("(Library) CityServiceWorldInfoPanel");
+                UIPanel servicePanel = GetPanel(SERVICE_PANEL_NAME);
                 servicePanel.eventVisibilityChanged -= Panel.OnVisibilityChanged;
                 servicePanel.eventPositionChanged -= Panel.OnPositionChanged;
                 GameObject.Destroy(Root);
@@ -247,6 +258,7 @@ namespace GSteigertDistricts
             }
         }
     }
+
 
     class DistrictRow : UIPanel, IUIFastListRow
     {
