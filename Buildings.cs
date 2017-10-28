@@ -406,7 +406,7 @@ namespace DistrictServiceLimit
                 BuildingAI otherBuildingAI = (BuildingAI)otherBuilding.Info.m_buildingAI;
                 if (!aiType.IsAssignableFrom(otherBuildingAI.GetType())) continue;
                 if (otherBuildingAI.IsFull(otherBuildingID, ref otherBuilding)) continue;
-                if (!hasSpareVehicles(otherBuildingID, ref otherBuilding, otherBuildingAI)) continue;
+                if (delegateMode && !hasSpareVehicles(otherBuildingID, ref otherBuilding, otherBuildingAI)) continue;   //target delegation does not need vehicle from target!
 
                 if (delegateMode)
                 {
