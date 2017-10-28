@@ -131,21 +131,22 @@ namespace DistrictServiceLimit
             CitizenManager citizenManager = Singleton<CitizenManager>.instance;
             Building srcBuilding = buildingManager.m_buildings.m_buffer[(int)buildingID];
             Building dstBuilding = buildingManager.m_buildings.m_buffer[(int)offer.Building];
+            ushort dstBuildingId = offer.Building;
 
             //fix for services based on resident instead of building:
             if (offer.Building == 0 && offer.Citizen != 0)
             {
-                offer.Building = citizenManager.m_citizens.m_buffer[offer.Citizen].GetBuildingByLocation();
-                dstBuilding = buildingManager.m_buildings.m_buffer[(int)citizenManager.m_citizens.m_buffer[offer.Citizen].GetBuildingByLocation()];
+                dstBuildingId = citizenManager.m_citizens.m_buffer[offer.Citizen].GetBuildingByLocation();
+                dstBuilding = buildingManager.m_buildings.m_buffer[dstBuildingId];
             }
 
             string srcBuildingName = buildingManager.GetBuildingName(buildingID, InstanceID.Empty);
-            string dstBuildingName = buildingManager.GetBuildingName(offer.Building, InstanceID.Empty);
+            string dstBuildingName = buildingManager.GetBuildingName(dstBuildingId, InstanceID.Empty);
             string dstCitizenName = citizenManager.GetCitizenName(offer.Citizen);
             string srcDistrictName = FindDistrictName(srcBuilding.m_position);
             string dstDistrictName = FindDistrictName(dstBuilding.m_position);
 
-            bool allowed = DistrictChecker.IsTransferAllowed(data.m_position, dstBuilding.m_position, buildingID, offer.Building, reason, false);
+            bool allowed = DistrictChecker.IsTransferAllowed(data.m_position, dstBuilding.m_position, buildingID, dstBuildingId, reason, false);
 
 #if DEBUG
             if (summarizedLog)
@@ -178,22 +179,22 @@ namespace DistrictServiceLimit
             ushort buildingID = data.m_sourceBuilding;
             Building srcBuilding = buildingManager.m_buildings.m_buffer[(int)buildingID];
             Building dstBuilding = buildingManager.m_buildings.m_buffer[(int)offer.Building];
+            ushort dstBuildingId = offer.Building;
 
-            //fix for services based on resident instead of building:
             //fix for services based on resident instead of building:
             if (offer.Building == 0 && offer.Citizen != 0)
             {
-                offer.Building = citizenManager.m_citizens.m_buffer[offer.Citizen].GetBuildingByLocation();
-                dstBuilding = buildingManager.m_buildings.m_buffer[(int)citizenManager.m_citizens.m_buffer[offer.Citizen].GetBuildingByLocation()];
+                dstBuildingId = citizenManager.m_citizens.m_buffer[offer.Citizen].GetBuildingByLocation();
+                dstBuilding = buildingManager.m_buildings.m_buffer[dstBuildingId];
             }
 
             string srcBuildingName = buildingManager.GetBuildingName(buildingID, InstanceID.Empty);
-            string dstBuildingName = buildingManager.GetBuildingName(offer.Building, InstanceID.Empty);
+            string dstBuildingName = buildingManager.GetBuildingName(dstBuildingId, InstanceID.Empty);
             string dstCitizenName = citizenManager.GetCitizenName(offer.Citizen);
             string srcDistrictName = FindDistrictName(srcBuilding.m_position);
             string dstDistrictName = FindDistrictName(dstBuilding.m_position);
 
-            bool allowed = DistrictChecker.IsTransferAllowed(srcBuilding.m_position, dstBuilding.m_position, buildingID, offer.Building, reason, false);
+            bool allowed = DistrictChecker.IsTransferAllowed(srcBuilding.m_position, dstBuilding.m_position, buildingID, dstBuildingId, reason, false);
 
 #if DEBUG
             Utils.LogVehicle("------------------------------------------------------------"
@@ -219,14 +220,22 @@ namespace DistrictServiceLimit
             ushort buildingID = data.m_homeBuilding;    //todo: change to location based?
             Building srcBuilding = buildingManager.m_buildings.m_buffer[(int)buildingID];
             Building dstBuilding = buildingManager.m_buildings.m_buffer[(int)offer.Building];
+            ushort dstBuildingId = offer.Building;
+
+            //fix for services based on resident instead of building:
+            if (offer.Building == 0 && offer.Citizen != 0)
+            {
+                dstBuildingId = citizenManager.m_citizens.m_buffer[offer.Citizen].GetBuildingByLocation();
+                dstBuilding = buildingManager.m_buildings.m_buffer[dstBuildingId];
+            }
 
             string srcBuildingName = buildingManager.GetBuildingName(buildingID, InstanceID.Empty);
-            string dstBuildingName = buildingManager.GetBuildingName(offer.Building, InstanceID.Empty);
+            string dstBuildingName = buildingManager.GetBuildingName(dstBuildingId, InstanceID.Empty);
             string dstCitizenName = citizenManager.GetCitizenName(offer.Citizen);
             string srcDistrictName = FindDistrictName(srcBuilding.m_position);
             string dstDistrictName = FindDistrictName(dstBuilding.m_position);
 
-            bool allowed = DistrictChecker.IsTransferAllowed(srcBuilding.m_position, dstBuilding.m_position, buildingID, offer.Building, reason, true);
+            bool allowed = DistrictChecker.IsTransferAllowed(srcBuilding.m_position, dstBuilding.m_position, buildingID, dstBuildingId, reason, true);
 
 #if DEBUG
             Utils.LogCitizen("------------------------------------------------------------"
