@@ -12,6 +12,7 @@ namespace DistrictServiceLimit
         /// </summary>
         private static bool IsTransferAllowed(Vector3 source, Vector3 destination, ushort buildingID, ushort destBuildingID, TransferManager.TransferReason reason, bool isResidentTransfer)
         {
+            ServiceBuildingOptions opts = ServiceBuildingOptions.GetInstance();
             DistrictManager districtManager = Singleton<DistrictManager>.instance;
             byte srcDistrict = districtManager.GetDistrict(source);
             byte dstDistrict = districtManager.GetDistrict(destination);
@@ -37,14 +38,14 @@ namespace DistrictServiceLimit
                     case TransferManager.TransferReason.Sick:
                     case TransferManager.TransferReason.Sick2:
                         return Settings.RestrictCitizenHealthAccess ?
-                            (dstDistrict == 0 || srcDistrict == dstDistrict) : true;
+                            (dstDistrict == 0 || srcDistrict == dstDistrict || opts.IsTargetCovered(destBuildingID, srcDistrict)) : true;
 
                     // resident going to an educational building
                     case TransferManager.TransferReason.Student1:
                     case TransferManager.TransferReason.Student2:
                     case TransferManager.TransferReason.Student3:
                         return Settings.RestrictCitizenEducationalAccess ?
-                            (dstDistrict == 0 || srcDistrict == dstDistrict) : true;
+                            (dstDistrict == 0 || srcDistrict == dstDistrict || opts.IsTargetCovered(destBuildingID, srcDistrict)) : true;
 
                     // resident going to a park
                     case TransferManager.TransferReason.Entertainment:
@@ -52,7 +53,7 @@ namespace DistrictServiceLimit
                     case TransferManager.TransferReason.EntertainmentC:
                     case TransferManager.TransferReason.EntertainmentD:
                         return Settings.RestrictCitizenParkAccess ?
-                            (dstDistrict == 0 || srcDistrict == dstDistrict) : true;
+                            (dstDistrict == 0 || srcDistrict == dstDistrict || opts.IsTargetCovered(destBuildingID, srcDistrict)) : true;
 
                     // resident going to a shop
                     case TransferManager.TransferReason.Shopping:
@@ -64,7 +65,7 @@ namespace DistrictServiceLimit
                     case TransferManager.TransferReason.ShoppingG:
                     case TransferManager.TransferReason.ShoppingH:
                         return Settings.RestrictCitizenShoppingAccess ?
-                            (dstDistrict == 0 || srcDistrict == dstDistrict) : true;
+                            (dstDistrict == 0 || srcDistrict == dstDistrict || opts.IsTargetCovered(destBuildingID, srcDistrict)) : true;
 
                     // resident going to work
                     case TransferManager.TransferReason.Worker0:
@@ -72,7 +73,7 @@ namespace DistrictServiceLimit
                     case TransferManager.TransferReason.Worker2:
                     case TransferManager.TransferReason.Worker3:
                         return Settings.RestrictCitizenWorkAccess ?
-                            (dstDistrict == 0 || srcDistrict == dstDistrict) : true;
+                            (dstDistrict == 0 || srcDistrict == dstDistrict || opts.IsTargetCovered(destBuildingID, srcDistrict)) : true;
 
                     default:
                         return true;
@@ -80,7 +81,6 @@ namespace DistrictServiceLimit
             }
             else
             {
-                ServiceBuildingOptions opts = ServiceBuildingOptions.GetInstance();
                 switch (reason)
                 {
                     // vehicle fetching something
