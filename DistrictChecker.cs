@@ -138,6 +138,13 @@ namespace DistrictServiceLimit
             {
                 dstBuildingId = citizenManager.m_citizens.m_buffer[offer.Citizen].GetBuildingByLocation();
                 dstBuilding = buildingManager.m_buildings.m_buffer[dstBuildingId];
+
+                //still no building -> citizen out in the wild (e.g. waiting for taxi)
+                if (dstBuildingId == 0)
+                {
+                    var instid = citizenManager.m_citizens.m_buffer[offer.Citizen].m_instance;
+                    dstBuilding.m_position = citizenManager.m_instances.m_buffer[instid].GetLastFramePosition(); //pass by value, overwrite OK
+                }
             }
 
             string srcBuildingName = buildingManager.GetBuildingName(buildingID, InstanceID.Empty);
@@ -186,6 +193,13 @@ namespace DistrictServiceLimit
             {
                 dstBuildingId = citizenManager.m_citizens.m_buffer[offer.Citizen].GetBuildingByLocation();
                 dstBuilding = buildingManager.m_buildings.m_buffer[dstBuildingId];
+
+                //still no building -> citizen out in the wild (e.g. waiting for taxi)
+                if (dstBuildingId == 0)
+                {
+                    var instid = citizenManager.m_citizens.m_buffer[offer.Citizen].m_instance;
+                    dstBuilding.m_position = citizenManager.m_instances.m_buffer[instid].GetLastFramePosition(); //pass by value, overwrite OK
+                }
             }
 
             string srcBuildingName = buildingManager.GetBuildingName(buildingID, InstanceID.Empty);
@@ -227,6 +241,13 @@ namespace DistrictServiceLimit
             {
                 dstBuildingId = citizenManager.m_citizens.m_buffer[offer.Citizen].GetBuildingByLocation();
                 dstBuilding = buildingManager.m_buildings.m_buffer[dstBuildingId];
+
+                //still no building -> citizen out in the wild (e.g. waiting for taxi)
+                if (dstBuildingId == 0)
+                {
+                    var instid = citizenManager.m_citizens.m_buffer[offer.Citizen].m_instance;
+                    dstBuilding.m_position = citizenManager.m_instances.m_buffer[instid].GetLastFramePosition(); //pass by value, overwrite OK
+                }
             }
 
             string srcBuildingName = buildingManager.GetBuildingName(buildingID, InstanceID.Empty);
