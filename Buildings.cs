@@ -29,12 +29,6 @@ namespace DistrictServiceLimit
                 }
             }
         }
-
-        protected override void SimulationStepActive(ushort buildingID, ref Building buildingData, ref Building.Frame frameData)
-        {
-            triggered = false;
-            base.SimulationStepActive(buildingID, ref buildingData, ref frameData);
-        }
     }
 
     public class MedicalCenterAIMod : MedicalCenterAI
@@ -62,11 +56,6 @@ namespace DistrictServiceLimit
             }
         }
 
-        protected override void SimulationStepActive(ushort buildingID, ref Building buildingData, ref Building.Frame frameData)
-        {
-            triggered = false;
-            base.SimulationStepActive(buildingID, ref buildingData, ref frameData);
-        }
     }
 
     public class HospitalAIMod : HospitalAI
@@ -94,11 +83,6 @@ namespace DistrictServiceLimit
             }
         }
 
-        protected override void SimulationStepActive(ushort buildingID, ref Building buildingData, ref Building.Frame frameData)
-        {
-            triggered = false;
-            base.SimulationStepActive(buildingID, ref buildingData, ref frameData);
-        }
     }
 
     public class CemeteryAIMod : CemeteryAI
@@ -126,11 +110,6 @@ namespace DistrictServiceLimit
             }
         }
 
-        protected override void SimulationStepActive(ushort buildingID, ref Building buildingData, ref Building.Frame frameData)
-        {
-            triggered = false;
-            base.SimulationStepActive(buildingID, ref buildingData, ref frameData);
-        }
     }
 
     public class PoliceStationAIMod : PoliceStationAI
@@ -158,11 +137,6 @@ namespace DistrictServiceLimit
             }
         }
 
-        protected override void SimulationStepActive(ushort buildingID, ref Building buildingData, ref Building.Frame frameData)
-        {
-            triggered = false;
-            base.SimulationStepActive(buildingID, ref buildingData, ref frameData);
-        }
     }
 
     public class FireStationAIMod : FireStationAI
@@ -190,11 +164,6 @@ namespace DistrictServiceLimit
             }
         }
 
-        protected override void SimulationStepActive(ushort buildingID, ref Building buildingData, ref Building.Frame frameData)
-        {
-            triggered = false;
-            base.SimulationStepActive(buildingID, ref buildingData, ref frameData);
-        }
     }
 
     public class LandfillSiteAIMod : LandfillSiteAI
@@ -222,11 +191,6 @@ namespace DistrictServiceLimit
             }
         }
 
-        protected override void SimulationStepActive(ushort buildingID, ref Building buildingData, ref Building.Frame frameData)
-        {
-            triggered = false;
-            base.SimulationStepActive(buildingID, ref buildingData, ref frameData);
-        }
     }
 
     public class SnowDumpAIMod : SnowDumpAI
@@ -254,11 +218,6 @@ namespace DistrictServiceLimit
             }
         }
 
-        protected override void SimulationStepActive(ushort buildingID, ref Building buildingData, ref Building.Frame frameData)
-        {
-            triggered = false;
-            base.SimulationStepActive(buildingID, ref buildingData, ref frameData);
-        }
     }
 
     public class MaintenanceDepotAIMod : MaintenanceDepotAI
@@ -286,11 +245,6 @@ namespace DistrictServiceLimit
             }
         }
 
-        protected override void SimulationStepActive(ushort buildingID, ref Building buildingData, ref Building.Frame frameData)
-        {
-            triggered = false;
-            base.SimulationStepActive(buildingID, ref buildingData, ref frameData);
-        }
     }
 
     public class DepotAIMod : DepotAI
@@ -318,11 +272,6 @@ namespace DistrictServiceLimit
             }
         }
 
-        protected override void SimulationStepActive(ushort buildingID, ref Building buildingData, ref Building.Frame frameData)
-        {
-            triggered = false;
-            base.SimulationStepActive(buildingID, ref buildingData, ref frameData);
-        }
     }
 
     public class TaxiStandAIMod : TaxiStandAI
@@ -350,11 +299,6 @@ namespace DistrictServiceLimit
             }
         }
 
-        protected override void SimulationStepActive(ushort buildingID, ref Building buildingData, ref Building.Frame frameData)
-        {
-            triggered = false;
-            base.SimulationStepActive(buildingID, ref buildingData, ref frameData);
-        }
     }
 
 
@@ -380,10 +324,10 @@ namespace DistrictServiceLimit
             bool delegateMode = (material == TransferManager.TransferReason.Fire
                 || material == TransferManager.TransferReason.Crime
                 || material == TransferManager.TransferReason.Dead
-                || material == TransferManager.TransferReason.Fire
                 || material == TransferManager.TransferReason.Fire2
                 || material == TransferManager.TransferReason.Garbage
                 || material == TransferManager.TransferReason.RoadMaintenance
+                || material == TransferManager.TransferReason.Snow
                 || material == TransferManager.TransferReason.Sick
                 || material == TransferManager.TransferReason.Sick2
                 || material == TransferManager.TransferReason.Taxi);
@@ -441,7 +385,6 @@ namespace DistrictServiceLimit
 
         internal static bool hasSpareVehicles(ushort buildingID, ref Building data, BuildingAI buildingAI)
         {
-
             string stats = buildingAI.GetLocalizedStats(buildingID, ref data);
             if ((stats == null) || (stats == ""))
             {

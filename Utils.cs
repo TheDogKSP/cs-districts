@@ -10,8 +10,7 @@ namespace DistrictServiceLimit
 {
     internal static class Utils
     {
-        private const bool LOG_ENABLED = true;
-        //private const bool LOG_ENABLED = false;
+        private const bool LOG_ENABLED = false;
 
         private static object logLock = new object();
         private static string generalLogPath;
