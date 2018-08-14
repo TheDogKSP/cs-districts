@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using Harmony;
 using ICities;
@@ -111,7 +112,8 @@ namespace DistrictServiceLimit
         {
             Utils.LogGeneral("[Loading mod]");
 
-            DateTime then = DateTime.Now;
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
 
             harmonyInstance = HarmonyInstance.Create(harmonyId);
             harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
@@ -119,9 +121,9 @@ namespace DistrictServiceLimit
             Utils.LogGeneral("District Service Limit installing panel...");
             DistrictSelectionPanel.Install();
 
-            long duration = (DateTime.Now - then).Milliseconds;
+            sw.Stop();
 
-            Utils.LogGeneral("District Service Limit mod loaded in " + duration + "ms");
+            Utils.LogGeneral("District Service Limit mod loaded in " + sw.ElapsedMilliseconds + "ms");
             Utils.LogGeneral("[/Loading mod]\n");
         }
     }
