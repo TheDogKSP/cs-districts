@@ -126,7 +126,7 @@ namespace DistrictServiceLimit
 
             fastList.DisplayAt(0);
 
-            //Utils.LogGeneral($"[DistrictSelectionPanel]: {fastList.rowsData.m_size} available Districts for building: ");
+            Utils.LogGeneral($"[DistrictSelectionPanel]: {fastList.rowsData.m_size} available Districts for building: ");
         }
 
         private void Show(ushort selectedBuildingID)
@@ -168,7 +168,7 @@ namespace DistrictServiceLimit
                 displayRequested = true;
             }
 
-            //Utils.LogGeneral($"[DistrictSelectionPanel]: displayRequested={displayRequested}");
+            Utils.LogGeneral($"[DistrictSelectionPanel]: displayRequested={displayRequested}");
         }
 
         private void OnVisibilityChanged(UIComponent component, bool visible)
@@ -217,10 +217,8 @@ namespace DistrictServiceLimit
         private static string[] GetUIPanelNames() => GetUIPanelInstances().Select(p => p.name).ToArray();
         private static UIPanel GetPanel(string pname)
         {
-            //return GetUIPanelInstances().FirstOrDefault(p => p.name == pname);
             return UIView.Find<UIPanel>(pname);
         }
-
 
         public static void AdjustPosition()
         {
@@ -239,8 +237,8 @@ namespace DistrictServiceLimit
                 Panel.position = new Vector3(servicePanel.width + 5, servicePanel.height);
             }
 
-            //Utils.LogGeneral("[District Service Limit] position is: " + Panel.position);
-            //Utils.LogGeneral("[District Service Limit] basePanel position is: " + Panel.transform.parent.position);
+            Utils.LogGeneral("[District Service Limit] position is: " + Panel.position);
+            Utils.LogGeneral("[District Service Limit] basePanel position is: " + Panel.transform.parent.position);
         }
 
 
@@ -248,7 +246,6 @@ namespace DistrictServiceLimit
         {
             if (Root != null)
             {
-                //UIPanel servicePanel = UIView.Find<UIPanel>("(Library) CityServiceWorldInfoPanel");
                 UIPanel servicePanel = GetPanel(SERVICE_PANEL_NAME);
                 servicePanel.eventVisibilityChanged -= Panel.OnVisibilityChanged;
                 servicePanel.eventPositionChanged -= Panel.OnPositionChanged;
