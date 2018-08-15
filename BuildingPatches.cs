@@ -140,14 +140,14 @@ namespace DistrictServiceLimit
     [HarmonyPatch(typeof(DepotAI), "StartTransfer")]
     class DepotAIStartTransferPatch
     {
-        static bool Prefix(ushort buildingID, ref Building data, TransferManager.TransferReason material, TransferManager.TransferOffer offer)
+        static bool Prefix(ushort buildingID, ref Building data, TransferManager.TransferReason reason, TransferManager.TransferOffer offer)
         {
-            if (DistrictChecker.IsBuildingTransferAllowed(buildingID, ref data, material, offer))
+            if (DistrictChecker.IsBuildingTransferAllowed(buildingID, ref data, reason, offer))
             {
                 return true;
             }
 
-            BuildingHelper.delegateToAnotherBuilding(buildingID, ref data, material, offer);
+            BuildingHelper.delegateToAnotherBuilding(buildingID, ref data, reason, offer);
             return false;
         }
     }
@@ -155,14 +155,14 @@ namespace DistrictServiceLimit
     [HarmonyPatch(typeof(TaxiStandAI), "StartTransfer")]
     class TaxiStandAIStartTransferPatch
     {
-        static bool Prefix(ushort buildingID, ref Building data, TransferManager.TransferReason material, TransferManager.TransferOffer offer)
+        static bool Prefix(ushort buildingID, ref Building data, TransferManager.TransferReason reason, TransferManager.TransferOffer offer)
         {
-            if (DistrictChecker.IsBuildingTransferAllowed(buildingID, ref data, material, offer))
+            if (DistrictChecker.IsBuildingTransferAllowed(buildingID, ref data, reason, offer))
             {
                 return true;
             }
 
-            BuildingHelper.delegateToAnotherBuilding(buildingID, ref data, material, offer);
+            BuildingHelper.delegateToAnotherBuilding(buildingID, ref data, reason, offer);
             return false;
         }
     }

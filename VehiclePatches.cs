@@ -1,5 +1,4 @@
 ﻿using Harmony;
-using UnityEngine;
 
 namespace DistrictServiceLimit
 {
@@ -104,23 +103,9 @@ namespace DistrictServiceLimit
     [HarmonyPatch(typeof(TaxiAI), "StartTransfer")]
     class TaxiAIStartTransferPatch
     {
-        static bool Prefix(ushort vehicleID, ref Vehicle data, TransferManager.TransferReason material, TransferManager.TransferOffer offer)
+        static bool Prefix(ushort vehicleID, ref Vehicle data, TransferManager.TransferReason reason, TransferManager.TransferOffer offer)
         {
-            if (DistrictChecker.IsVehicleTransferAllowed(vehicleID, ref data, material, offer))
-            {
-                return true;
-            }
-
-            return false;
-        }
-    }
-
-    [HarmonyPatch(typeof(HelicopterAI), "StartTransfer")]
-    class HelicopterAIStartTransferPatch
-    {
-        static bool Prefix(ushort vehicleID, ref Vehicle data, TransferManager.TransferReason material, TransferManager.TransferOffer offer)
-        {
-            if (DistrictChecker.IsVehicleTransferAllowed(vehicleID, ref data, material, offer))
+            if (DistrictChecker.IsVehicleTransferAllowed(vehicleID, ref data, reason, offer))
             {
                 return true;
             }
