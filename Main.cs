@@ -1,4 +1,7 @@
 using System;
+using System.Diagnostics;
+using System.Reflection;
+using Harmony;
 using ICities;
 
 namespace DistrictServiceLimit
@@ -86,6 +89,9 @@ namespace DistrictServiceLimit
 
     public class CustomLoadingExtension : LoadingExtensionBase
     {
+        private string harmonyId = "gsteigert.dsl3";
+        private HarmonyInstance harmonyInstance;
+
         public override void OnLevelLoaded(LoadMode mode)
         {
             if (mode == LoadMode.NewGame || mode == LoadMode.LoadGame)
@@ -98,72 +104,26 @@ namespace DistrictServiceLimit
         {
             ServiceBuildingOptions.GetInstance().Clear();
             DistrictSelectionPanel.Uninstall();
+            harmonyInstance.UnpatchAll(harmonyId);
+            harmonyInstance = null;
         }
 
         private void ActivateMod()
         {
             Utils.LogGeneral("[Loading mod]");
 
-            DateTime then = DateTime.Now;
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
 
-            // replace health buildings and vehicles
-            ReplaceHelper.ReplaceBuildingAI<MedicalCenterAI, MedicalCenterAIMod>();
-            ReplaceHelper.ReplaceBuildingAI<HospitalAI, HospitalAIMod>();
-            ReplaceHelper.ReplaceVehicleAI<AmbulanceAI, AmbulanceAIMod>();
-            ReplaceHelper.ReplaceVehicleAI<AmbulanceCopterAI, AmbulanceCopterAIMod>();
-
-            // replace fire buildings and vehicles
-            ReplaceHelper.ReplaceBuildingAI<FireStationAI, FireStationAIMod>();
-            ReplaceHelper.ReplaceVehicleAI<FireTruckAI, FireTruckAIMod>();
-            ReplaceHelper.ReplaceVehicleAI<FireCopterAI, FireCopterAIMod>();
-
-            // replace cemetery buildings and vehicles
-            ReplaceHelper.ReplaceBuildingAI<CemeteryAI, CemeteryAIMod>();
-            ReplaceHelper.ReplaceVehicleAI<HearseAI, HearseAIMod>();
-
-            // replace police buildings and vehicles
-            ReplaceHelper.ReplaceBuildingAI<PoliceStationAI, PoliceStationAIMod>();
-            ReplaceHelper.ReplaceVehicleAI<PoliceCarAI, PoliceCarAIMod>();
-            ReplaceHelper.ReplaceVehicleAI<PoliceCopterAI, PoliceCopterAIMod>();
-
-            // replace garbage buildings and vehicles
-            ReplaceHelper.ReplaceBuildingAI<LandfillSiteAI, LandfillSiteAIMod>();
-            ReplaceHelper.ReplaceVehicleAI<GarbageTruckAI, GarbageTruckAIMod>();
-
-            // replace road maintenance buildings and vehicles
-            ReplaceHelper.ReplaceBuildingAI<MaintenanceDepotAI, MaintenanceDepotAIMod>();
-            ReplaceHelper.ReplaceVehicleAI<MaintenanceTruckAI, MaintenanceTruckAIMod>();
-            ReplaceHelper.ReplaceBuildingAI<SnowDumpAI, SnowDumpAIMod>();
-            ReplaceHelper.ReplaceVehicleAI<SnowTruckAI, SnowTruckAIMod>();
-
-            // replace taxi buildings and vehicles
-            ReplaceHelper.ReplaceBuildingAI<DepotAI, DepotAIMod>();
-            ReplaceHelper.ReplaceBuildingAI<TaxiStandAI, TaxiStandAIMod>();
-            ReplaceHelper.ReplaceVehicleAI<TaxiAI, TaxiAIMod>();
-
-            // replace police, fire and ambulance helicopters
-            ReplaceHelper.ReplaceBuildingAI<HelicopterDepotAI, HelicopterDepotAIMod>();
-            ReplaceHelper.ReplaceVehicleAI<HelicopterAI, HelicopterAIMod>();
-
-            // replace the residents (only if options checked)
-            if (Settings.RestrictCitizenEducationalAccess ||
-                Settings.RestrictCitizenHealthAccess ||
-                Settings.RestrictCitizenParkAccess ||
-                Settings.RestrictCitizenShoppingAccess ||
-                Settings.RestrictCitizenWorkAccess)
-            {
-                ReplaceHelper.ReplacePersonAI<ResidentAI, ResidentAIMod>();
-            } else
-            {
-                Utils.LogGeneral("Skipping resident AI replacements.");
-            }
+            harmonyInstance = HarmonyInstance.Create(harmonyId);
+            harmonyInstance.PatchAll(Assembly.GetExecutingAssembly());
 
             Utils.LogGeneral("District Service Limit installing panel...");
             DistrictSelectionPanel.Install();
 
-            long duration = (DateTime.Now - then).Milliseconds;
+            sw.Stop();
 
-            Utils.LogGeneral("District Service Limit mod loaded in " + duration + "ms");
+            Utils.LogGeneral("District Service Limit mod loaded in " + sw.ElapsedMilliseconds + "ms");
             Utils.LogGeneral("[/Loading mod]\n");
         }
     }
