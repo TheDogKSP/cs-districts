@@ -4,16 +4,13 @@ using System.ComponentModel;
 using System.Threading;
 using ColossalFramework.IO;
 using ColossalFramework.Plugins;
+using System.Diagnostics;
 
 namespace DistrictServiceLimit
 {
     internal static class Utils
     {
-#if DEBUG
-        private const bool LOG_ENABLED = true;
-#else
         private const bool LOG_ENABLED = false;
-#endif
 
         private static object logLock = new object();
         private static string generalLogPath;
@@ -109,6 +106,7 @@ namespace DistrictServiceLimit
             }
         }
 
+        [Conditional("DEBUG")]
         public static void LogCitizen(String message)
         {
             if (!LOG_ENABLED)
@@ -128,6 +126,7 @@ namespace DistrictServiceLimit
             {
                 Monitor.Exit(logLock);
             }
+            
         }
 
         public static void LogInfo(string message)
