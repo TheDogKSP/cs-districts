@@ -155,7 +155,6 @@ namespace DistrictServiceLimit
 
             bool allowed = DistrictChecker.IsTransferAllowed(data.m_position, dstBuilding.m_position, buildingID, dstBuildingId, reason, false);
 
-#if DEBUG
             if (summarizedLog)
             {
                 Utils.LogBuilding(String.Format("   - Building #{0} queried (allowed: {1})", buildingID, allowed));
@@ -169,7 +168,7 @@ namespace DistrictServiceLimit
                     + String.Format("\n - Destination: building='{0}', citizen='{1}'", dstBuildingName, dstCitizenName)
                     + String.Format("\n - District: {0} -> {1}", srcDistrictName, dstDistrictName));
             }
-#endif
+
             return allowed;
         }
 
@@ -210,14 +209,13 @@ namespace DistrictServiceLimit
 
             bool allowed = DistrictChecker.IsTransferAllowed(srcBuilding.m_position, dstBuilding.m_position, buildingID, dstBuildingId, reason, false);
 
-#if DEBUG
             Utils.LogVehicle("------------------------------------------------------------"
                 + String.Format("\nVehicle #{0} queried (allowed: {1})", vehicleID, allowed)
                 + String.Format("\n - Transfer: reason={0}, offer={1}", reason, Utils.ToString(offer))
                 + String.Format("\n - Origin: {0}", srcBuildingName)
                 + String.Format("\n - Destination: building='{0}', citizen='{1}'", dstBuildingName, dstCitizenName)
                 + String.Format("\n - District: {0} -> {1}", srcDistrictName, dstDistrictName));
-#endif
+
             return allowed;
         }
 
@@ -258,14 +256,13 @@ namespace DistrictServiceLimit
 
             bool allowed = DistrictChecker.IsTransferAllowed(srcBuilding.m_position, dstBuilding.m_position, buildingID, dstBuildingId, reason, true);
 
-#if DEBUG
             Utils.LogCitizen("------------------------------------------------------------"
                 + String.Format("\nCitizen #{0} queried (allowed: {1})", citizenID, allowed)
                 + String.Format("\n - Transfer: reason={0}, offer={1}", reason, Utils.ToString(offer))
                 + String.Format("\n - Origin: {0}", srcBuildingName)
                 + String.Format("\n - Destination: building='{0}', citizen='{1}'", dstBuildingName, dstCitizenName)
                 + String.Format("\n - District: {0} -> {1}", srcDistrictName, dstDistrictName));
-#endif
+
             return allowed;
         }
 
